@@ -17,3 +17,11 @@ as `Source/out.csv`.
 
 You can change the input and output directory by using 
 `optimizer(input_file="...", output_file="...")`.
+
+**Important:**
+You have to add a file `secrets.py` with the following content:
+```python
+
+API_KEY = "..."  # You can get this key from (or ask me)
+
+```
