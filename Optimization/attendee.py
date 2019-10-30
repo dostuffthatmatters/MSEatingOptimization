@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import requests
 import json
 from Helpers.custom_printing import CustomPrinting
+from Helpers.custom_math import CustomMath
 
 region_zip_codes = {
     "Innenstadt": "80333",
@@ -68,8 +69,9 @@ class Attendee(ABC):
             self.lng = coordinates_dict["lng"]
         except KeyError as e:
             print(e)
-            self.lat = 0
-            self.lng = 0
+            # Coordinates of "80539 München" (Center of Munich)
+            self.lat = 48.1447027
+            self.lng = 11.5821606
 
 
 class Host(Attendee):
