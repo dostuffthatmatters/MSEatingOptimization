@@ -28,11 +28,12 @@ class Attendee(ABC):
     ids_free = range(512)
     ids_used = []
 
-    def __init__(self, host,
+    def __init__(self, host, max_people="",
                  region="", street_and_number="", zip_code_and_city="",
                  name="", allergies="", mail="", phone_number="", semester=""):
 
         self.host = host  # In case there are too many hosts
+        self.max_people = max_people
 
         self.lat = 0
         self.long = 0
@@ -63,29 +64,35 @@ class Host(Attendee):
 
     instances = []
 
-    def __init__(self, host,
+    def __init__(self, host, max_people="",
                  region="", street_and_number="", zip_code_and_city="",
                  name="", allergies="", mail="", phone_number="", semester=""):
 
-        super().__init__(host=host,
+        super().__init__(host=host, max_people=max_people,
                          region=region, street_and_number=street_and_number, zip_code_and_city=zip_code_and_city,
                          name=name, allergies=allergies, mail=mail, phone_number=phone_number, semester=semester)
 
         Host.instances.append(self)
 
+    def __repr__(self):
+        return f"Host(Name: {self.contact.name})"
+
 class Guest(Attendee):
 
     instances = []
 
-    def __init__(self, host,
+    def __init__(self, host, max_people="",
                  region="", street_and_number="", zip_code_and_city="",
                  name="", allergies="", mail="", phone_number="", semester=""):
 
-        super().__init__(host=host,
+        super().__init__(host=host, max_people=max_people,
                          region=region, street_and_number=street_and_number, zip_code_and_city=zip_code_and_city,
                          name=name, allergies=allergies, mail=mail, phone_number=phone_number, semester=semester)
 
         Guest.instances.append(self)
+
+    def __repr__(self):
+        return f"Guest(Name: {self.contact.name})"
 
 
 
