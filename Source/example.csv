@@ -2,4 +2,4 @@ Region;Host;Allergien;Max Personen;Vorname;Nachname;Straße und Hausnummer;Postl
 Innenstadt;Ja;;6;Moritz;Makowski;Braganzastraße 4;80637 München;mail1@tum.de;15111567241;1;Ja
 Garching + Freimann;Nein;;;Hannah;Berentz;Straße 5;80639;mail2@tum.de;0170 11111111;Master;Ja
 Westen + Norden;Nein;Nüsse;;Peter;Kaulbach;Straße 6;München 800638;mail3@tum.de;0049 0170 11111110;MINT-Studium;Ja
-Süden und Osten;Nein;;;Max;Münster;Str. 7;München;mail4@tum.de;+49 170 11111101;9;Ja
+Süden + Osten;Nein;;;Max;Münster;Str. 7;München;mail4@tum.de;+49 170 11111101;9;Ja
