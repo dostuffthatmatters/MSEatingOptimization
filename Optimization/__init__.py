@@ -9,4 +9,4 @@ class Optimization:
         pass
 
     def execute(self):
-        pass
+        return True, ""
