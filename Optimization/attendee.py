@@ -1,4 +1,7 @@
 from abc import ABC, abstractmethod
+import requests
+import json
+from Helpers.custom_printing import CustomPrinting
 
 region_zip_codes = {
     "Innenstadt": "80333",
@@ -36,7 +39,7 @@ class Attendee(ABC):
         self.max_people = max_people
 
         self.lat = 0
-        self.long = 0
+        self.lng = 0
         self.get_coordinates(region, street_and_number, zip_code_and_city)
 
         self.contact = Contact(self, name=name, region=region, street_and_number=street_and_number,
@@ -48,16 +51,25 @@ class Attendee(ABC):
             if 48 <= ord(char) <= 57:
                 zip_string += char
 
-        if len(zip_string) < 5:
+        if len(zip_string) != 5:
             if region != "":
                 zip_string = region_zip_codes[region]
             else:
                 zip_string = region_zip_codes["München"]
 
         # Get Latitude an Longitude from Google Maps API
+        request_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={zip_string}+München&key=AIzaSyCIFTVJuD_NRITAuxlIWYKIhnTzCBIr0wQ"
+        CustomPrinting.print_yellow(f"Now requesting: GET => {request_url}")
+        response = requests.get(request_url)
 
-        self.lat = 0
-        self.long = 0
+        try:
+            coordinates_dict = json.loads(response.text)["results"][0]["geometry"]["location"]
+            self.lat = coordinates_dict["lat"]
+            self.lng = coordinates_dict["lng"]
+        except KeyError as e:
+            print(e)
+            self.lat = 0
+            self.lng = 0
 
 
 class Host(Attendee):
@@ -75,7 +87,7 @@ class Host(Attendee):
         Host.instances.append(self)
 
     def __repr__(self):
-        return f"Host(Name: {self.contact.name})"
+        return f"Host(Name: {self.contact.name}, Coordinates: {round(self.lat, 7)}N, {round(self.lng, 7)}E)"
 
 class Guest(Attendee):
 
@@ -92,7 +104,7 @@ class Guest(Attendee):
         Guest.instances.append(self)
 
     def __repr__(self):
-        return f"Guest(Name: {self.contact.name})"
+        return f"Guest(Name: {self.contact.name}, Coordinates: {round(self.lat, 7)}N, {round(self.lng, 7)}E)"
 
 
 
