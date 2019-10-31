@@ -6,15 +6,20 @@ from Helpers.custom_printing import CustomPrinting
 import Database.queries as db_query
 import Database.additions as db_addition
 
+from Optimization.Optimizer.moritz_01 import OptimizerMoritz01
+
 
 class Optimization:
 
-    def __init__(self, input_file="Source/in.csv", output_file="Source/out.csv"):
+    def __init__(self, input_file="Source/in.csv", output_file="Source/out.csv", optimizer=OptimizerMoritz01):
         self.input_file = input_file
         self.output_file = output_file
 
         self.load_models()
         Optimization.update_distances()
+
+        self.optimizer = optimizer
+
 
     def load_models(self):
         with open(self.input_file, newline='') as csvfile:
@@ -44,6 +49,9 @@ class Optimization:
                     # Pass parameters
                     Guest(False, **kwargs)
 
+    def export_models(self):
+        pass
+
     @staticmethod
     def update_distances():
         zip_code_rows = db_query.get_all_zip_code_rows()
@@ -71,7 +79,7 @@ class Optimization:
         else:
             CustomPrinting.print_yellow(f"No distances left to be calculated")
 
-
-    @staticmethod
-    def execute():
+    def execute(self):
+        self.optimizer.optimize()
+        self.export_models()
         return True, ""
