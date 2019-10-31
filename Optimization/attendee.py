@@ -32,9 +32,6 @@ class Contact:
 
 class Attendee(ABC):
 
-    ids_free = range(512)
-    ids_used = []
-
     def __init__(self, host, max_people="",
                  region="", street_and_number="", zip_code_and_city="",
                  name="", allergies="", mail="", phone_number="", semester=""):
