@@ -4,6 +4,9 @@ import json
 from Helpers.custom_printing import CustomPrinting
 from Helpers.custom_math import CustomMath
 
+import Database.queries as db_query
+import Database.additions as db_addition
+
 region_zip_codes = {
     "Innenstadt": "80333",
     "Garching + Freimann": "80939",
@@ -58,20 +61,32 @@ class Attendee(ABC):
             else:
                 zip_string = region_zip_codes["München"]
 
-        # Get Latitude an Longitude from Google Maps API
-        request_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={zip_string}+München&key=AIzaSyCIFTVJuD_NRITAuxlIWYKIhnTzCBIr0wQ"
-        CustomPrinting.print_yellow(f"Now requesting: GET => {request_url}")
-        response = requests.get(request_url)
+        zip_code_row = db_query.get_zip_code_row(zip_string)
 
-        try:
-            coordinates_dict = json.loads(response.text)["results"][0]["geometry"]["location"]
-            self.lat = coordinates_dict["lat"]
-            self.lng = coordinates_dict["lng"]
-        except KeyError as e:
-            print(e)
-            # Coordinates of "80539 München" (Center of Munich)
-            self.lat = 48.1447027
-            self.lng = 11.5821606
+        if zip_code_row is None:
+            # Get Latitude an Longitude from Google Maps API
+            request_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={zip_string}+München&key=AIzaSyCIFTVJuD_NRITAuxlIWYKIhnTzCBIr0wQ"
+            CustomPrinting.print_yellow(f"Now requesting from the Geocode API: {zip_string}")
+            response = requests.get(request_url)
+
+            try:
+                coordinates_dict = json.loads(response.text)["results"][0]["geometry"]["location"]
+                self.lat = coordinates_dict["lat"]
+                self.lng = coordinates_dict["lng"]
+            except KeyError as e:
+                print(e)
+                # Coordinates of "80539 München" (Center of Munich)
+                self.lat = 48.1447027
+                self.lng = 11.5821606
+
+            CustomPrinting.print_yellow(f"Adding to database: {zip_string} => coords: {self.lat}N, {self.lng}E")
+            db_addition.add_zip_code(zip_string, self.lat, self.lng)
+
+        else:
+            CustomPrinting.print_yellow(f"Now fetching from database: {zip_string}")
+            self.lat = zip_code_row.lat
+            self.lng = zip_code_row.lng
+
 
 
 class Host(Attendee):

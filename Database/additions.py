@@ -1,5 +1,16 @@
-from Database.models import ZipCode, ZipDistance
-from Database import session
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from Database import ZipCode, ZipDistance, Base, DB_URL
+
+engine = create_engine(DB_URL, echo=False)
+Base.metadata.bind = engine
+
+DBSession = sessionmaker(bind=engine)
+
+# session.commit() will push all staged changes to the global database
+# session.rollback() will revert all staged changes
+session = DBSession()
 
 
 def add_zip_code(zip_string, lat, lng):

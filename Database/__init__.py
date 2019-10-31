@@ -1,13 +1,40 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, Integer, String, Float
 
-# engine = create_engine('sqlite:///:memory:', echo=True)
-engine = create_engine('sqlite:///database.db', echo=True)
+
+DB_URL = 'sqlite:///database.db'
+
 Base = declarative_base()
 
-Session = sessionmaker(bind=engine)
-session = Session()
+class ZipCode(Base):
+    __tablename__ = 'zip_code'
+    id = Column(Integer, primary_key=True)
 
-if __name__ == "__main__":
-    Base.metadata.create_all(engine)
+    zip_string = Column(String)
+
+    lat = Column(Float)
+    lng = Column(Float)
+
+    def __repr__(self):
+        return f"<ZipCode(zip: '{self.zip_string}', coordinates: {self.lat}N, {self.lng}E)>"
+
+
+class ZipDistance(Base):
+    __tablename__ = 'zip_distance'
+    id = Column(Integer, primary_key=True)
+
+    zip_id_1 = Column(Integer)
+    zip_id_2 = Column(Integer)
+
+    distance = Column(Float)
+
+    def __repr__(self):
+        return f"<ZipDistance(zip_id_1: {self.zip_id_1}, zip_id_1: {self.zip_id_1}, distance: {self.distance})>"
+
+
+engine = create_engine(DB_URL, echo=False)
+# engine = create_engine('sqlite:///:memory:', echo=True)
+
+# Create all tables in the engine.
+Base.metadata.create_all(engine)

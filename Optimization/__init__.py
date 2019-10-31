@@ -9,14 +9,10 @@ class Optimization:
         self.output_file = output_file
 
         self.load_models()
-        print(Host.instances)
-        print(Guest.instances)
 
     def load_models(self):
         with open(self.input_file, newline='') as csvfile:
             spamreader = csv.reader(csvfile, delimiter=';', quotechar='|')
-            print(spamreader)
-            print("\n\n")
             for row in spamreader:
 
                 # Skip first row
