@@ -39,7 +39,7 @@ class Contact:
         return [f"{self.name} (Host)", f"{self.street_and_number}, {self.zip_code_and_city}", f"Max. Guests: {self.max_people}", self.mail, self.phone_number]
 
     def guest_row_representation(self):
-        return [f"{self.name} (Guest)", f"Allergies: {self.allergies if len(self.allergies) > 0 else 'None'}", "", self.mail, self.phone_number]
+        return [f"{self.name} (Guest)", f"Allergies: {self.allergies if len(self.allergies) > 0 else 'None'}", " ", self.mail, self.phone_number]
 
     def unmatched_guest_row_representation(self):
         return [f"{self.name} (Unmatched Guest)", f"{self.street_and_number}, {self.zip_code_and_city}", f"Allergies: {self.allergies if len(self.allergies) > 0 else 'None'}", self.mail, self.phone_number]

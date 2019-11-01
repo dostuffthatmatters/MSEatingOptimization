@@ -34,7 +34,8 @@ if __name__ == "__main__":
 
     for i in range(50):
         host = "Ja" if random.randint(1, 5) == 1 else "Nein"
-        row = ["Innenstadt", host, " ", " ", " ", " ", "Straße 4", f"{random.choice(ZIP_CODES)} München", " ", " ", " ", "Ja"]
+        zip_code = random.choice(ZIP_CODES)
+        row = ["Innenstadt", host, "<allergien>", "<max_personen>", "<vorname>", "<nachname>", "Straße 4", f"{zip_code} München", "<tum_mail>", "<handynummer>", "<semester>", "Ja"]
         rows.append(row)
 
     with open("generic_example.csv", 'wt') as f:

@@ -8,6 +8,8 @@ class OptimizerMoritz01(Optimizer):
 
     @staticmethod
     def optimize():
+        print(len(Guest.instances), len(Host.instances))
+
         for guest in Guest.instances:
             favorite_host = None
             favorite_distance = 0
