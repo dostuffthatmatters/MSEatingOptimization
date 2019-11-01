@@ -11,10 +11,16 @@ def load_models(input_file):
             if row[0] == 'Region':
                 continue
 
+            try:
+                max_guests = int(row[3])
+                max_guests = 4 if max_guests < 4 else max_guests  # Has to be at least 4
+            except ValueError:
+                max_guests = 4
+
             kwargs = {
                 "region": row[0],
                 "allergies": row[2],
-                "max_people": row[3],
+                "max_guests": max_guests,
                 "street_and_number": row[6],
                 "zip_code_and_city": row[7],
                 "name": row[4] + " " + row[5],

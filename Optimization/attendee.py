@@ -17,14 +17,14 @@ region_zip_codes = {
 
 class Contact:
 
-    def __init__(self, attendee, name="", max_people="", allergies="", semester="",
+    def __init__(self, attendee, name="", max_guests="", allergies="", semester="",
                  region="", street_and_number="",
                  mail="", phone_number=""):
 
         self.attendee = attendee
 
         self.name = name
-        self.max_people = max_people
+        self.max_guests = max_guests
         self.allergies = allergies
 
         self.region = region
@@ -36,7 +36,7 @@ class Contact:
         self.semester = semester
 
     def host_row_representation(self):
-        return [f"{self.name} (Host)", f"{self.street_and_number}, {self.zip_code_and_city}", f"Max. Guests: {self.max_people}", self.mail, self.phone_number]
+        return [f"{self.name} (Host)", f"{self.street_and_number}, {self.zip_code_and_city}", f"Max. Guests: {self.max_guests}", self.mail, self.phone_number]
 
     def guest_row_representation(self):
         return [f"{self.name} (Guest)", f"Allergies: {self.allergies if len(self.allergies) > 0 else 'None'}", " ", self.mail, self.phone_number]
@@ -52,7 +52,7 @@ class Contact:
 
 class Attendee(ABC):
 
-    def __init__(self, host, name="", max_people="", allergies="", semester="",
+    def __init__(self, host, name="", max_guests="", allergies="", semester="",
                  region="", street_and_number="", zip_code_and_city="",
                  mail="", phone_number=""):
 
@@ -60,8 +60,8 @@ class Attendee(ABC):
         # are too many hosts and some hosts are just guests
         self.host = host
 
-        self.max_people = max_people
-        self.contact = Contact(self, name=name, max_people=max_people, allergies=allergies, semester=semester,
+        self.max_guests = max_guests
+        self.contact = Contact(self, name=name, max_guests=max_guests, allergies=allergies, semester=semester,
                                region=region, street_and_number=street_and_number,
                                mail=mail, phone_number=phone_number)
 
@@ -116,11 +116,11 @@ class Host(Attendee):
 
     instances = []
 
-    def __init__(self, host, max_people="",
+    def __init__(self, host, max_guests="",
                  region="", street_and_number="", zip_code_and_city="",
                  name="", allergies="", mail="", phone_number="", semester=""):
 
-        super().__init__(host=host, max_people=max_people,
+        super().__init__(host=host, max_guests=max_guests,
                          region=region, street_and_number=street_and_number, zip_code_and_city=zip_code_and_city,
                          name=name, allergies=allergies, mail=mail, phone_number=phone_number, semester=semester)
 
@@ -141,16 +141,20 @@ class Host(Attendee):
         rows.append(Contact.empty_row_representation())
         return rows
 
+    def append_guest(self, guest):
+        self.guests.append(guest)
+        guest.host = self
+
 
 class Guest(Attendee):
 
     instances = []
 
-    def __init__(self, host, max_people="",
+    def __init__(self, host, max_guests="",
                  region="", street_and_number="", zip_code_and_city="",
                  name="", allergies="", mail="", phone_number="", semester=""):
 
-        super().__init__(host=host, max_people=max_people,
+        super().__init__(host=host, max_guests=max_guests,
                          region=region, street_and_number=street_and_number, zip_code_and_city=zip_code_and_city,
                          name=name, allergies=allergies, mail=mail, phone_number=phone_number, semester=semester)
 
