@@ -6,7 +6,11 @@ from Helpers.custom_printing import CustomPrinting
 from time import time
 
 def export_image():
-    CustomPrinting.print_pink(f"#6 Generating Image ...")
+    """
+        This function generates and saves and images based on
+        the current Host/Guest configuration.
+    """
+    CustomPrinting.print_pink(f"#7 Generating Image ...")
     time1 = time()
     """
 
@@ -147,6 +151,6 @@ def export_image():
 
     img.save("Source/out.png")
     timespan = round(time() - time1, 6)
-    CustomPrinting.print_pink(f"#6 Generating Image: Done ({timespan} seconds).", new_lines=3)
+    CustomPrinting.print_pink(f"#7 Generating Image: Done ({timespan} seconds).", new_lines=3)
 
     img.show()

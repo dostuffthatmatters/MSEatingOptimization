@@ -39,6 +39,17 @@ class HostHub:
                 new_host_hub.append_hosts(host)
                 CustomPrinting.print_yellow(f"New HostHub at: {new_host_hub.avg_lat}, {new_host_hub.avg_lng} -> {new_host_hub.zip_strings}")
 
+    @staticmethod
+    def update_distances():
+        pass
+
+    @staticmethod
+    def export_hubs():
+        HostHub.instances = sorted(HostHub.instances, key=lambda x: len(x.guests) / float(x.max_guests))
+        for host_hub in HostHub.instances[::-1]:
+            CustomPrinting.print_yellow(
+                f"Host hub {host_hub.zip_strings}: {len(host_hub.guests)} guests and {len(host_hub.hosts)} hosts")
+            host_hub.export_hub()
 
     def __init__(self):
         self.hosts = []
@@ -139,15 +150,29 @@ class OptimizerMoritz03(Optimizer):
 
     @staticmethod
     def optimize():
+
         CustomPrinting.print_pink(f"#3 Creating HostHubs: {len(Host.instances)} hosts ...")
         time1 = time()
         HostHub.create_hubs()
         timespan = round(time() - time1, 6)
         CustomPrinting.print_pink(f"#3 Creating HostHubs: Done ({timespan} seconds).", new_lines=3)
 
-        time1 = time()
-        CustomPrinting.print_pink(f"#4 Optimizing: {len(Guest.instances)} guests and {len(Host.instances)} hosts ...")
 
+        CustomPrinting.print_pink(f"#4 Determining each Guest's favorite HostHubs: {len(Guest.instances)} guests and {len(HostHub.instances)} host hubs ({len(Host.instances)} hosts) ...")
+        time1 = time()
+        OptimizerMoritz03.determine_favorite_host_hubs()
+        timespan = round(time() - time1, 6)
+        CustomPrinting.print_pink(f"#4 Determining each Guest's favorite HostHubs: Done ({timespan} seconds).", new_lines=3)
+
+
+        CustomPrinting.print_pink(f"#5 Optimizing: Done ({timespan} seconds).", new_lines=3)
+        time1 = time()
+        HostHub.export_hubs()
+        timespan = round(time() - time1, 6)
+        CustomPrinting.print_pink(f"#5 Optimizing: Done ({timespan} seconds).", new_lines=3)
+
+    @staticmethod
+    def determine_favorite_host_hubs():
         for guest in Guest.instances:
             favorite_host_hubs = []
             for host_hub in HostHub.instances:
@@ -161,14 +186,5 @@ class OptimizerMoritz03(Optimizer):
 
             favorite_host_hubs[0]["hub"].append_guests(guest)
             guest.favorite_host_hubs = favorite_host_hubs
-
-        HostHub.instances = sorted(HostHub.instances, key=lambda x: len(x.guests)/float(x.max_guests))
-
-        for host_hub in HostHub.instances[::-1]:
-            CustomPrinting.print_yellow(f"Host hub {host_hub.zip_strings}: {len(host_hub.guests)} guests and {len(host_hub.hosts)} hosts")
-            host_hub.export_hub()
-
-        timespan = round(time() - time1, 6)
-        CustomPrinting.print_pink(f"#4 Optimizing: Done ({timespan} seconds).", new_lines=3)
 
 

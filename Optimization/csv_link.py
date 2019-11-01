@@ -7,6 +7,10 @@ from Helpers.custom_printing import CustomPrinting
 from time import time
 
 def load_models(input_file):
+    """
+        This method takes an 'input_file' (csv) and initializes all Host
+        and Guest classes based on the data inside that table
+    """
     CustomPrinting.print_pink(f"#1 Loading Models ...")
     time1 = time()
 
@@ -48,7 +52,12 @@ def load_models(input_file):
 
 
 def export_models(output_file):
-    CustomPrinting.print_pink(f"#5 Exporting Models ...")
+    """
+        This method takes all all existing Host and Guest classes,
+        exports all Host-Guest-Groups in a readable way and stores
+        this inside a csv table at the location of 'output_file'.
+    """
+    CustomPrinting.print_pink(f"#6 Exporting Models ...")
     time1 = time()
 
     rows = [["MATCHED GROUPS GUESTS"]]
@@ -68,4 +77,4 @@ def export_models(output_file):
         csv_writer.writerows(rows)
 
     timespan = round(time() - time1, 6)
-    CustomPrinting.print_pink(f"#5 Exporting Models: Done ({timespan} seconds).", new_lines=3)
+    CustomPrinting.print_pink(f"#6 Exporting Models: Done ({timespan} seconds).", new_lines=3)
