@@ -6,6 +6,8 @@ from Helpers.custom_printing import CustomPrinting
 import Database.queries as db_query
 import Database.additions as db_addition
 
+from time import time
+
 class HostHub:
 
     MAX_DISTANCE_BETWEEN_HOSTS = 500
@@ -137,9 +139,14 @@ class OptimizerMoritz03(Optimizer):
 
     @staticmethod
     def optimize():
-        CustomPrinting.print_pink(f"#3 Creating HostHubs: {len(Host.instances)} hosts.")
-
+        CustomPrinting.print_pink(f"#3 Creating HostHubs: {len(Host.instances)} hosts ...")
+        time1 = time()
         HostHub.create_hubs()
+        timespan = round(time() - time1, 6)
+        CustomPrinting.print_pink(f"#3 Creating HostHubs: Done ({timespan} seconds).", new_lines=3)
+
+        time1 = time()
+        CustomPrinting.print_pink(f"#4 Optimizing: {len(Guest.instances)} guests and {len(Host.instances)} hosts ...")
 
         for guest in Guest.instances:
             favorite_host_hubs = []
@@ -155,16 +162,13 @@ class OptimizerMoritz03(Optimizer):
             favorite_host_hubs[0]["hub"].append_guests(guest)
             guest.favorite_host_hubs = favorite_host_hubs
 
-        CustomPrinting.print_pink(f"#3 Creating HostHubs: Done", new_lines=3)
-
-        CustomPrinting.print_pink(f"#4 Optimizing: {len(Guest.instances)} guests and {len(Host.instances)} hosts.")
-
         HostHub.instances = sorted(HostHub.instances, key=lambda x: len(x.guests)/float(x.max_guests))
 
         for host_hub in HostHub.instances[::-1]:
             CustomPrinting.print_yellow(f"Host hub {host_hub.zip_strings}: {len(host_hub.guests)} guests and {len(host_hub.hosts)} hosts")
             host_hub.export_hub()
 
-        CustomPrinting.print_pink(f"#4 Optimizing: Done.", new_lines=3)
+        timespan = round(time() - time1, 6)
+        CustomPrinting.print_pink(f"#4 Optimizing: Done ({timespan} seconds).", new_lines=3)
 
 

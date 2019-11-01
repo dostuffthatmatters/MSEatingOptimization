@@ -12,6 +12,8 @@ from Optimization.Optimizer.moritz_01 import OptimizerMoritz01
 from Optimization.Optimizer.moritz_02 import OptimizerMoritz02
 from Optimization.Optimizer.moritz_03 import OptimizerMoritz03
 
+from time import time
+
 
 class Optimization:
 
@@ -31,7 +33,8 @@ class Optimization:
         for i in range(len(zip_code_rows)):
             desired_length += i
 
-        CustomPrinting.print_pink(f"#2 Updating Distanced")
+        CustomPrinting.print_pink(f"#2 Updating Distances ...")
+        time1 = time()
 
         actual_length = len(db_query.get_all_zip_distance_rows())
         CustomPrinting.print_yellow(f"{actual_length}/{desired_length} distances already calculated")
@@ -55,7 +58,8 @@ class Optimization:
         else:
             CustomPrinting.print_yellow(f"No distances left to be calculated")
 
-        CustomPrinting.print_pink(f"#2 Updating Distanced: Done", new_lines=3)
+        timespan = round(time() - time1, 6)
+        CustomPrinting.print_pink(f"#2 Updating Distances: Done ({timespan} seconds).", new_lines=3)
 
     def execute(self):
         self.optimizer.optimize()

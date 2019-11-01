@@ -4,8 +4,11 @@ from Optimization.attendee import Host, Guest
 
 from Helpers.custom_printing import CustomPrinting
 
+from time import time
+
 def load_models(input_file):
-    CustomPrinting.print_pink(f"#1 Loading Models")
+    CustomPrinting.print_pink(f"#1 Loading Models ...")
+    time1 = time()
 
     with open(input_file, newline='') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
@@ -40,11 +43,13 @@ def load_models(input_file):
                 # Pass parameters
                 Guest(False, **kwargs)
 
-    CustomPrinting.print_pink(f"#1 Loading Models: Done", new_lines=3)
+    timespan = round(time() - time1, 6)
+    CustomPrinting.print_pink(f"#1 Loading Models: Done ({timespan} seconds).", new_lines=3)
 
 
 def export_models(output_file):
-    CustomPrinting.print_pink(f"#5 Exporting Models")
+    CustomPrinting.print_pink(f"#5 Exporting Models ...")
+    time1 = time()
 
     rows = [["MATCHED GROUPS GUESTS"]]
 
@@ -62,4 +67,5 @@ def export_models(output_file):
         csv_writer = csv.writer(f)
         csv_writer.writerows(rows)
 
-    CustomPrinting.print_pink(f"#5 Exporting Models: Done", new_lines=3)
+    timespan = round(time() - time1, 6)
+    CustomPrinting.print_pink(f"#5 Exporting Models: Done ({timespan} seconds).", new_lines=3)

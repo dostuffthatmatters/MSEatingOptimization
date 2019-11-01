@@ -3,10 +3,11 @@ from PIL import Image, ImageDraw, ImageFont
 from Optimization.attendee import Host, Guest
 from Helpers.custom_printing import CustomPrinting
 
+from time import time
 
 def export_image():
-    CustomPrinting.print_pink(f"#6 Generating Image")
-
+    CustomPrinting.print_pink(f"#6 Generating Image ...")
+    time1 = time()
     """
 
     min_lat = 1000
@@ -145,6 +146,7 @@ def export_image():
             draw.text((x-(len(text)*6), y-10), text, font=font, fill=(255, 100, 100))
 
     img.save("Source/out.png")
-    CustomPrinting.print_pink(f"#6 Generating Image: Done", new_lines=3)
+    timespan = round(time() - time1, 6)
+    CustomPrinting.print_pink(f"#6 Generating Image: Done ({timespan} seconds).", new_lines=3)
 
     img.show()
