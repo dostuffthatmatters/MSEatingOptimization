@@ -3,3 +3,7 @@ secrets.py
 
 *.numbers
 *.db
+
+out.csv
+
+.DS_Store

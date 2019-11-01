@@ -17,34 +17,57 @@ region_zip_codes = {
 
 class Contact:
 
-    def __init__(self, attendee, name="", region="", street_and_number="", allergies="", mail="", phone_number="", semester=""):
+    def __init__(self, attendee, name="", max_people="", allergies="", semester="",
+                 region="", street_and_number="",
+                 mail="", phone_number=""):
+
         self.attendee = attendee
 
         self.name = name
+        self.max_people = max_people
+        self.allergies = allergies
+
         self.region = region
         self.street_and_number = street_and_number
+        self.zip_code_and_city = ""
 
-        self.allergies = allergies
         self.mail = mail
         self.phone_number = phone_number
         self.semester = semester
 
+    def host_row_representation(self):
+        return [f"{self.name} (Host)", f"{self.street_and_number}, {self.zip_code_and_city}", f"Max. Guests: {self.max_people}", self.mail, self.phone_number]
+
+    def guest_row_representation(self):
+        return [f"{self.name} (Guest)", f"Allergies: {self.allergies if len(self.allergies) > 0 else 'None'}", "", self.mail, self.phone_number]
+
+    def unmatched_guest_row_representation(self):
+        return [f"{self.name} (Unmatched Guest)", f"{self.street_and_number}, {self.zip_code_and_city}", f"Allergies: {self.allergies if len(self.allergies) > 0 else 'None'}", self.mail, self.phone_number]
+
+    @staticmethod
+    def empty_row_representation():
+        return ["", "", "", ""]
+
+
 
 class Attendee(ABC):
 
-    def __init__(self, host, max_people="",
+    def __init__(self, host, name="", max_people="", allergies="", semester="",
                  region="", street_and_number="", zip_code_and_city="",
-                 name="", allergies="", mail="", phone_number="", semester=""):
+                 mail="", phone_number=""):
 
-        self.host = host  # In case there are too many hosts
+        # True if the attendee is a host - needed in case there
+        # are too many hosts and some hosts are just guests
+        self.host = host
+
         self.max_people = max_people
+        self.contact = Contact(self, name=name, max_people=max_people, allergies=allergies, semester=semester,
+                               region=region, street_and_number=street_and_number,
+                               mail=mail, phone_number=phone_number)
 
         self.lat = 0
         self.lng = 0
         self.get_coordinates(region, street_and_number, zip_code_and_city)
-
-        self.contact = Contact(self, name=name, region=region, street_and_number=street_and_number,
-                               allergies=allergies, mail=mail, phone_number=phone_number, semester=semester)
 
     def get_coordinates(self, region, street_and_number, zip_code_and_city):
         zip_string = ""
@@ -57,6 +80,8 @@ class Attendee(ABC):
                 zip_string = region_zip_codes[region]
             else:
                 zip_string = region_zip_codes["München"]
+
+        self.contact.zip_code_and_city = zip_string + " München"
 
         zip_code_row = db_query.get_zip_code_row(zip_string)
 
@@ -85,7 +110,6 @@ class Attendee(ABC):
             self.lng = zip_code_row.lng
 
 
-
 class Host(Attendee):
 
     instances = []
@@ -99,9 +123,22 @@ class Host(Attendee):
                          name=name, allergies=allergies, mail=mail, phone_number=phone_number, semester=semester)
 
         Host.instances.append(self)
+        self.guests = []
 
     def __repr__(self):
         return f"Host(Name: {self.contact.name}, Coordinates: {round(self.lat, 7)}N, {round(self.lng, 7)}E)"
+
+    def csv_row_representation(self):
+        rows = [self.contact.host_row_representation()]
+
+
+        for guest in self.guests:
+            rows.append(guest.contact.guest_row_representation())
+
+        rows.append(Contact.empty_row_representation())
+        rows.append(Contact.empty_row_representation())
+        return rows
+
 
 class Guest(Attendee):
 
@@ -116,9 +153,8 @@ class Guest(Attendee):
                          name=name, allergies=allergies, mail=mail, phone_number=phone_number, semester=semester)
 
         Guest.instances.append(self)
+        self.host = None
 
     def __repr__(self):
         return f"Guest(Name: {self.contact.name}, Coordinates: {round(self.lat, 7)}N, {round(self.lng, 7)}E)"
-
-
 

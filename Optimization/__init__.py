@@ -17,8 +17,8 @@ class Optimization:
 
         self.load_models()
         Optimization.update_distances()
-
         self.optimizer = optimizer
+        self.export_models()
 
 
     def load_models(self):
@@ -50,7 +50,21 @@ class Optimization:
                     Guest(False, **kwargs)
 
     def export_models(self):
-        pass
+        rows = [["MATCHED GROUPS GUESTS"]]
+
+        for host in Host.instances:
+            if host.host:
+                rows += host.csv_row_representation()
+
+        rows.append(["GUESTS WITH NO MATCH"])
+
+        for guest in Guest.instances:
+            if guest.host is None:
+                rows.append(guest.contact.unmatched_guest_row_representation())
+
+        with open(self.output_file, 'wt') as f:
+            csv_writer = csv.writer(f)
+            csv_writer.writerows(rows)
 
     @staticmethod
     def update_distances():

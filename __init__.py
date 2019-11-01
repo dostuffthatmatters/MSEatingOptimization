@@ -4,8 +4,7 @@ from Helpers.custom_printing import CustomPrinting
 def optimizer(input_file="Source/in.csv", output_file="Source/out.csv"):
     CustomPrinting.print("\nOptimization starting now ...", bold=True, new_lines=2)
 
-    Optimization(input_file=input_file, output_file=output_file)
-    result = Optimization.execute()
+    result = Optimization(input_file=input_file, output_file=output_file).execute()
 
     if result[0]:
         CustomPrinting.print_green("\nOptimization finished successfully ...", bold=True)
