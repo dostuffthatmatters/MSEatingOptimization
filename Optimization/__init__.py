@@ -10,11 +10,12 @@ import Database.additions as db_addition
 
 from Optimization.Optimizer.moritz_01 import OptimizerMoritz01
 from Optimization.Optimizer.moritz_02 import OptimizerMoritz02
+from Optimization.Optimizer.moritz_03 import OptimizerMoritz03
 
 
 class Optimization:
 
-    def __init__(self, input_file="Source/in.csv", output_file="Source/out.csv", optimizer=OptimizerMoritz02):
+    def __init__(self, input_file="Source/in.csv", output_file="Source/out.csv", optimizer=OptimizerMoritz03):
         self.input_file = input_file
         self.output_file = output_file
 
@@ -24,10 +25,13 @@ class Optimization:
 
     @staticmethod
     def update_distances():
+
         zip_code_rows = db_query.get_all_zip_code_rows()
         desired_length = 0
         for i in range(len(zip_code_rows)):
             desired_length += i
+
+        CustomPrinting.print_pink(f"#2 Updating Distanced")
 
         actual_length = len(db_query.get_all_zip_distance_rows())
         CustomPrinting.print_yellow(f"{actual_length}/{desired_length} distances already calculated")
@@ -51,8 +55,10 @@ class Optimization:
         else:
             CustomPrinting.print_yellow(f"No distances left to be calculated")
 
+        CustomPrinting.print_pink(f"#2 Updating Distanced: Done", new_lines=3)
+
     def execute(self):
         self.optimizer.optimize()
-        visual_link.export_image()
         csv_link.export_models(self.output_file)
+        visual_link.export_image()
         return True, ""

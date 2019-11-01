@@ -2,7 +2,11 @@
 import csv
 from Optimization.attendee import Host, Guest
 
+from Helpers.custom_printing import CustomPrinting
+
 def load_models(input_file):
+    CustomPrinting.print_pink(f"#1 Loading Models")
+
     with open(input_file, newline='') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
         for row in spamreader:
@@ -36,8 +40,12 @@ def load_models(input_file):
                 # Pass parameters
                 Guest(False, **kwargs)
 
+    CustomPrinting.print_pink(f"#1 Loading Models: Done", new_lines=3)
+
 
 def export_models(output_file):
+    CustomPrinting.print_pink(f"#5 Exporting Models")
+
     rows = [["MATCHED GROUPS GUESTS"]]
 
     for host in Host.instances:
@@ -53,3 +61,5 @@ def export_models(output_file):
     with open(output_file, 'wt') as f:
         csv_writer = csv.writer(f)
         csv_writer.writerows(rows)
+
+    CustomPrinting.print_pink(f"#5 Exporting Models: Done", new_lines=3)
