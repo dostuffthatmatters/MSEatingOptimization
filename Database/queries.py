@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from Database import ZipCode, ZipDistance, Base, DB_URL
+from Database import ZipCode, ZipDistance, Coordinates, CoordinatesZipDistance, Base, DB_URL
 
 engine = create_engine(DB_URL, echo=False)
 Base.metadata.bind = engine
@@ -25,34 +25,12 @@ def get_all_zip_distance_rows():
     return session.query(ZipDistance).all()
 
 
-def get_zip_distance_row(zip_row_1=None, zip_row_2=None,
-                         zip_id_1=None, zip_id_2=None,
-                         zip_string_1=None, zip_string_2=None):
-    if zip_row_1 is None:
-        if zip_id_1 is None:
-            if zip_string_1 is None:
-                return None
-            else:
-                zip_row_1 = session.query(ZipCode).filter(ZipCode.zip_string == zip_string_1).first()
-                if zip_row_1 is None:
-                    return None
-        else:
-            zip_row_1 = session.query(ZipCode).filter(ZipCode.id == zip_id_1).first()
-            if zip_row_1 is None:
-                return None
+def get_zip_distance_row(zip_string_1=None, zip_string_2=None):
+    zip_row_1 = session.query(ZipCode).filter(ZipCode.zip_string == zip_string_1).first()
+    zip_row_2 = session.query(ZipCode).filter(ZipCode.zip_string == zip_string_2).first()
 
-    if zip_row_2 is None:
-        if zip_id_2 is None:
-            if zip_string_2 is None:
-                return None
-            else:
-                zip_row_2 = session.query(ZipCode).filter(ZipCode.zip_string == zip_string_2).first()
-                if zip_row_2 is None:
-                    return None
-        else:
-            zip_row_2 = session.query(ZipCode).filter(ZipCode.id == zip_id_2).first()
-            if zip_row_2 is None:
-                return None
+    if zip_row_1 is None or zip_row_2 is None:
+        return None
 
     query_12 = session.query(ZipDistance).filter(ZipDistance.zip_id_1 == zip_row_1.id) \
         .filter(ZipDistance.zip_id_2 == zip_row_2.id).first()
@@ -66,46 +44,32 @@ def get_zip_distance_row(zip_row_1=None, zip_row_2=None,
         return query_12
 
 
-def get_zip_distance(zip_row_1=None, zip_row_2=None,
-                     zip_id_1=None, zip_id_2=None,
-                     zip_string_1=None, zip_string_2=None):
-    if zip_row_1 is None:
-        if zip_id_1 is None:
-            if zip_string_1 is None:
-                return None
-            else:
-                zip_row_1 = session.query(ZipCode).filter(ZipCode.zip_string == zip_string_1).first()
-                if zip_row_1 is None:
-                    return None
-        else:
-            zip_row_1 = session.query(ZipCode).filter(ZipCode.id == zip_id_1).first()
-            if zip_row_1 is None:
-                return None
+def get_zip_distance(zip_string_1=None, zip_string_2=None):
 
-    if zip_row_2 is None:
-        if zip_id_2 is None:
-            if zip_string_2 is None:
-                return None
-            else:
-                zip_row_2 = session.query(ZipCode).filter(ZipCode.zip_string == zip_string_2).first()
-                if zip_row_2 is None:
-                    return None
-        else:
-            zip_row_2 = session.query(ZipCode).filter(ZipCode.id == zip_id_2).first()
-            if zip_row_2 is None:
-                return None
+    zip_distance_row = get_zip_distance_row(zip_string_1=zip_string_1, zip_string_2=zip_string_2)
 
-    if zip_row_1.id == zip_row_2.id:
+    if zip_distance_row is None:
         return 0.0
-
-    query_12 = session.query(ZipDistance).filter(ZipDistance.zip_id_1 == zip_row_1.id) \
-        .filter(ZipDistance.zip_id_2 == zip_row_2.id).first()
-
-    query_21 = session.query(ZipDistance).filter(ZipDistance.zip_id_1 == zip_row_2.id) \
-        .filter(ZipDistance.zip_id_2 == zip_row_1.id).first()
-
-
-    if query_12 is None:
-        return query_21.distance
     else:
-        return query_12.distance
+        return zip_distance_row.distance
+
+
+def get_coordinates_zip_distance_row(zip_string=None, lat=0, lng=0):
+    zip_row = session.query(ZipCode).filter(ZipCode.zip_string == zip_string).first()
+    coordinates_row = session.query(Coordinates).filter(Coordinates.lat == lat).filter(Coordinates.lng == lng).first()
+
+    if zip_row is None or coordinates_row is None:
+        return None
+
+    return session.query(CoordinatesZipDistance).filter(CoordinatesZipDistance.zip_id == zip_row.id) \
+        .filter(CoordinatesZipDistance.coordinates_id == coordinates_row.id).first()
+
+
+def get_coordinates_zip_distance(zip_string=None, lat=0, lng=0):
+
+    coordinates_zip_distance_row = get_coordinates_zip_distance_row(zip_string=zip_string, lat=lat, lng=lng)
+
+    if coordinates_zip_distance_row is None:
+        return 0.0
+    else:
+        return coordinates_zip_distance_row.distance

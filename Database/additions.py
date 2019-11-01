@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from Database import ZipCode, ZipDistance, Base, DB_URL
+from Database import ZipCode, ZipDistance, Coordinates, CoordinatesZipDistance, Base, DB_URL
 
 engine = create_engine(DB_URL, echo=False)
 Base.metadata.bind = engine
@@ -22,6 +22,18 @@ def add_zip_code(zip_string, lat, lng):
 def add_zip_distance(zip_id_1, zip_id_2, distance):
     zip_distance_row = ZipDistance(zip_id_1=zip_id_1, zip_id_2=zip_id_2, distance=distance)
     session.add(zip_distance_row)
+    session.commit()
+
+
+def add_coordinates(lat, lng):
+    coordinates_row = Coordinates(lat=lat, lng=lng)
+    session.add(coordinates_row)
+    session.commit()
+
+
+def add_coordinates_zip_distance(zip_id, coordinates_id, distance):
+    coordinates_zip_distance_row = CoordinatesZipDistance(zip_id=zip_id, coordinates_id=coordinates_id, distance=distance)
+    session.add(coordinates_zip_distance_row)
     session.commit()
 
 
