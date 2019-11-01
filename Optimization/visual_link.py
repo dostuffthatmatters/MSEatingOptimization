@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 from Optimization.attendee import Host, Guest
 
@@ -38,6 +38,7 @@ def export_image():
     img = Image.open("Source/munich.png")
 
     draw = ImageDraw.Draw(img)
+    font = ImageFont.truetype("Source/Courier_New_Bold.ttf", 20)
 
     min_lat = 48.057483
     max_lat = 48.253319
@@ -57,11 +58,19 @@ def export_image():
     red_dots_to_be_drawn = []
     blue_dots_to_be_drawn = []
 
+    host_locations = {}
     dot_locations = {}
 
     for host in Host.instances:
         x_host = round(width * (host.lng - min_lng)/(max_lng - min_lng))
         y_host = height - round(height * (host.lat - min_lat)/(max_lat - min_lat))
+
+        if x_host not in host_locations:
+            host_locations[x_host] = {y_host: f"{len(host.guests)}"}
+        elif y_host not in host_locations[x_host]:
+            host_locations[x_host][y_host] = f"{len(host.guests)}"
+        else:
+            host_locations[x_host][y_host] += f"/{len(host.guests)}"
 
         for guest in host.guests:
             x_guest = round(width * (guest.lng - min_lng) / (max_lng - min_lng))
@@ -103,7 +112,7 @@ def export_image():
         x = dot[0]
         y = dot[1]
 
-        markersize = 24 + (6 * (dot_locations[x][y] - 1))
+        markersize = 24 + (12 * (dot_locations[x][y] - 1))
         color = (175, 0, 0) if dot_locations[x][y] % 2 == 0 else (255, 0, 0)
         dot_locations[x][y] -= 1
 
@@ -114,7 +123,7 @@ def export_image():
         x = dot[0]
         y = dot[1]
 
-        markersize = 24 + (6 * (dot_locations[x][y] - 1))
+        markersize = 24 + (12 * (dot_locations[x][y] - 1))
         color = (0, 130, 0) if dot_locations[x][y] % 2 == 0 else (0, 200, 0)
         dot_locations[x][y] -= 1
 
@@ -124,10 +133,15 @@ def export_image():
         x = dot[0]
         y = dot[1]
 
-        markersize = 24 + (6 * (dot_locations[x][y] - 1))
+        markersize = 24 + (12 * (dot_locations[x][y] - 1))
         color = (0, 0, 175) if dot_locations[x][y] % 2 == 0 else (0, 0, 255)
         dot_locations[x][y] -= 1
 
         draw.ellipse((x - markersize / 2, y - markersize / 2, x + markersize / 2, y + markersize / 2), fill=color)
 
+        if dot_locations[x][y] == 0:
+            text = host_locations[x][y]
+            draw.text((x-(len(text)*6), y-10), text, font=font, fill=(255, 100, 100))
+
+    img.save("Source/out.png")
     img.show()
