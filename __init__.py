@@ -13,4 +13,4 @@ def optimizer(input_file="Source/in.csv", output_file="Source/out.csv"):
 
 
 if __name__ == "__main__":
-    optimizer(input_file="Source/example.csv")
+    optimizer(input_file="Source/generic_example.csv")

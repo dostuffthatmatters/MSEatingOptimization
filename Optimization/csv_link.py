@@ -4,7 +4,7 @@ from Optimization.attendee import Host, Guest
 
 def load_models(input_file):
     with open(input_file, newline='') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=';', quotechar='|')
+        spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
         for row in spamreader:
 
             # Skip first row

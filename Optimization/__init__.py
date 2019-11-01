@@ -42,8 +42,10 @@ class Optimization:
                         CustomPrinting.print_yellow(f"Now calculating distance between {zip_code_row_1.zip_string} "
                                                     f"and {zip_code_row_2.zip_string})")
                         origin = (zip_code_row_1.lat, zip_code_row_1.lng)
-                        destination = (zip_code_row_1.lat, zip_code_row_1.lng)
+                        destination = (zip_code_row_2.lat, zip_code_row_2.lng)
                         distance = CustomMath.haversine(origin, destination)
+                        CustomPrinting.print_yellow(f"origin={origin}, destination={destination}")
+                        CustomPrinting.print_yellow(f"Distance={distance}")
                         db_addition.add_zip_distance(zip_code_row_1.id, zip_code_row_2.id, distance)
         else:
             CustomPrinting.print_yellow(f"No distances left to be calculated")

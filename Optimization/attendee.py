@@ -67,6 +67,7 @@ class Attendee(ABC):
 
         self.lat = 0
         self.lng = 0
+        self.zip_string = ""
         self.get_coordinates(region, street_and_number, zip_code_and_city)
 
     def get_coordinates(self, region, street_and_number, zip_code_and_city):
@@ -82,6 +83,7 @@ class Attendee(ABC):
                 zip_string = region_zip_codes["München"]
 
         self.contact.zip_code_and_city = zip_string + " München"
+        self.zip_string = zip_string
 
         zip_code_row = db_query.get_zip_code_row(zip_string)
 
