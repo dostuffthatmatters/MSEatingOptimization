@@ -55,12 +55,57 @@ def get_zip_distance_row(zip_row_1=None, zip_row_2=None,
                 return None
 
     query_12 = session.query(ZipDistance).filter(ZipDistance.zip_id_1 == zip_row_1.id) \
-                                         .filter(ZipDistance.zip_id_2 == zip_row_2.id).first()
+        .filter(ZipDistance.zip_id_2 == zip_row_2.id).first()
 
     query_21 = session.query(ZipDistance).filter(ZipDistance.zip_id_1 == zip_row_2.id) \
-                                         .filter(ZipDistance.zip_id_2 == zip_row_1.id).first()
+        .filter(ZipDistance.zip_id_2 == zip_row_1.id).first()
 
     if query_12 is None:
         return query_21
     else:
         return query_12
+
+
+def get_zip_distance(zip_row_1=None, zip_row_2=None,
+                     zip_id_1=None, zip_id_2=None,
+                     zip_string_1=None, zip_string_2=None):
+    if zip_row_1 is None:
+        if zip_id_1 is None:
+            if zip_string_1 is None:
+                return None
+            else:
+                zip_row_1 = session.query(ZipCode).filter(ZipCode.zip_string == zip_string_1).first()
+                if zip_row_1 is None:
+                    return None
+        else:
+            zip_row_1 = session.query(ZipCode).filter(ZipCode.id == zip_id_1).first()
+            if zip_row_1 is None:
+                return None
+
+    if zip_row_2 is None:
+        if zip_id_2 is None:
+            if zip_string_2 is None:
+                return None
+            else:
+                zip_row_2 = session.query(ZipCode).filter(ZipCode.zip_string == zip_string_2).first()
+                if zip_row_2 is None:
+                    return None
+        else:
+            zip_row_2 = session.query(ZipCode).filter(ZipCode.id == zip_id_2).first()
+            if zip_row_2 is None:
+                return None
+
+    if zip_row_1.id == zip_row_2.id:
+        return 0.0
+
+    query_12 = session.query(ZipDistance).filter(ZipDistance.zip_id_1 == zip_row_1.id) \
+        .filter(ZipDistance.zip_id_2 == zip_row_2.id).first()
+
+    query_21 = session.query(ZipDistance).filter(ZipDistance.zip_id_1 == zip_row_2.id) \
+        .filter(ZipDistance.zip_id_2 == zip_row_1.id).first()
+
+
+    if query_12 is None:
+        return query_21.distance
+    else:
+        return query_12.distance

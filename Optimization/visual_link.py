@@ -116,7 +116,6 @@ def export_image():
         color = (175, 0, 0) if dot_locations[x][y] % 2 == 0 else (255, 0, 0)
         dot_locations[x][y] -= 1
 
-        dot_locations[x][y] -= 1
         draw.ellipse((x - markersize / 2, y - markersize / 2, x + markersize / 2, y + markersize / 2), fill=color)
 
     for dot in green_dots_to_be_drawn:

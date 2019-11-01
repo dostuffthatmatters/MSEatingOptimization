@@ -9,11 +9,12 @@ import Database.queries as db_query
 import Database.additions as db_addition
 
 from Optimization.Optimizer.moritz_01 import OptimizerMoritz01
+from Optimization.Optimizer.moritz_02 import OptimizerMoritz02
 
 
 class Optimization:
 
-    def __init__(self, input_file="Source/in.csv", output_file="Source/out.csv", optimizer=OptimizerMoritz01):
+    def __init__(self, input_file="Source/in.csv", output_file="Source/out.csv", optimizer=OptimizerMoritz02):
         self.input_file = input_file
         self.output_file = output_file
 
