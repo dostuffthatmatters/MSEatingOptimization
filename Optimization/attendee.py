@@ -159,6 +159,7 @@ class Guest(Attendee):
 
         Guest.instances.append(self)
         self.host = None
+        self.assigned_to_hub = False
 
         self.favorite_host_hubs = []
 
@@ -171,7 +172,16 @@ class Guest(Attendee):
 
         if len(self.favorite_host_hubs) != 0:
             new_host_hub = self.favorite_host_hubs[0]["hub"]
-            if new_host_hub in instance_list:
+            if new_host_hub in instance_list and not new_host_hub.filled_up():
                 new_host_hub.append_guests(self)
             else:
                 self.switch_host_hub(instance_list)
+
+    def distance_to_next_free_host_hub(self):
+        for host_hub in self.favorite_host_hubs:
+            if not host_hub["hub"].filled_up():
+                return host_hub["distance"]
+        return 100000
+
+    def remove_host_hub_from_favorites(self, host_hub):
+        self.favorite_host_hubs = list(filter(lambda x: x["hub"] != host_hub, self.favorite_host_hubs))
