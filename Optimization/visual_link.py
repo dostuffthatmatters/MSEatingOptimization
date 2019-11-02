@@ -5,6 +5,12 @@ from Helpers.custom_printing import CustomPrinting
 from Helpers.custom_logger import CustomLogger
 
 from time import time
+import logging
+
+
+logging.getLogger('pillow').setLevel(logging.WARNING)
+logging.getLogger('PIL').setLevel(logging.WARNING)
+logging.getLogger('pil').setLevel(logging.WARNING)
 
 
 # noinspection PyShadowingNames
