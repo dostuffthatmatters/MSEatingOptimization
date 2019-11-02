@@ -165,10 +165,13 @@ class Guest(Attendee):
     def __repr__(self):
         return f"Guest(Name: {self.contact.name}, Coordinates: {round(self.lat, 7)}N, {round(self.lng, 7)}E)"
 
-    def switch_host_hub(self):
+    def switch_host_hub(self, instance_list):
         if len(self.favorite_host_hubs) != 0:
             self.favorite_host_hubs.pop(0)
 
         if len(self.favorite_host_hubs) != 0:
             new_host_hub = self.favorite_host_hubs[0]["hub"]
-            new_host_hub.append_guests(self)
+            if new_host_hub in instance_list:
+                new_host_hub.append_guests(self)
+            else:
+                self.switch_host_hub(instance_list)
