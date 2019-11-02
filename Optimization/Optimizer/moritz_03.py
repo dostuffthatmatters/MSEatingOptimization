@@ -1,7 +1,7 @@
 from Optimization.Optimizer import Optimizer
 from Optimization.attendee import Host, Guest
 
-from Helpers.custom_printing import CustomPrinting
+from Helpers.custom_logger import CustomLogger
 
 import Database.queries as db_query
 import Database.additions as db_addition
@@ -31,13 +31,13 @@ class HostHub:
                         added_to_hub = True
                         break
                 if added_to_hub:
-                    CustomPrinting.print_yellow(f"Extended HostHub at {host_hub.avg_lat}, {host_hub.avg_lng} -> {host_hub.zip_strings}")
+                    CustomLogger.debug(f"Extended HostHub at {host_hub.avg_lat}, {host_hub.avg_lng} -> {host_hub.zip_strings}")
                     break
 
             if not added_to_hub:
                 new_host_hub = HostHub()
                 new_host_hub.append_hosts(host)
-                CustomPrinting.print_yellow(f"New HostHub at: {new_host_hub.avg_lat}, {new_host_hub.avg_lng} -> {new_host_hub.zip_strings}")
+                CustomLogger.debug(f"New HostHub at: {new_host_hub.avg_lat}, {new_host_hub.avg_lng} -> {new_host_hub.zip_strings}")
 
     @staticmethod
     def update_distances():
@@ -47,8 +47,7 @@ class HostHub:
     def export_hubs():
         HostHub.instances = sorted(HostHub.instances, key=lambda x: len(x.guests) / float(x.max_guests))
         for host_hub in HostHub.instances[::-1]:
-            CustomPrinting.print_yellow(
-                f"Host hub {host_hub.zip_strings}: {len(host_hub.guests)} guests and {len(host_hub.hosts)} hosts")
+            CustomLogger.debug(f"Exporting HostHub {host_hub.zip_strings}: {len(host_hub.guests)} guests and {len(host_hub.hosts)} hosts")
             host_hub.export_hub()
 
     def __init__(self):
@@ -151,25 +150,23 @@ class OptimizerMoritz03(Optimizer):
     @staticmethod
     def optimize():
 
-        CustomPrinting.print_pink(f"#3 Creating HostHubs: {len(Host.instances)} hosts ...")
+        CustomLogger.info(f"#3A Creating HostHubs: {len(Host.instances)} hosts ...")
         time1 = time()
+
         HostHub.create_hubs()
-        timespan = round(time() - time1, 6)
-        CustomPrinting.print_pink(f"#3 Creating HostHubs: Done ({timespan} seconds).", new_lines=3)
+        CustomLogger.info(f"#3A Creating HostHubs: Done ({round(time() - time1, 6)} seconds).")
 
 
-        CustomPrinting.print_pink(f"#4 Determining each Guest's favorite HostHubs: {len(Guest.instances)} guests and {len(HostHub.instances)} host hubs ({len(Host.instances)} hosts) ...")
+        CustomLogger.info(f"#3B Determining each Guest's favorite HostHubs: {len(Guest.instances)} guests and {len(HostHub.instances)} host hubs ({len(Host.instances)} hosts) ...")
         time1 = time()
         OptimizerMoritz03.determine_favorite_host_hubs()
-        timespan = round(time() - time1, 6)
-        CustomPrinting.print_pink(f"#4 Determining each Guest's favorite HostHubs: Done ({timespan} seconds).", new_lines=3)
+        CustomLogger.info(f"#3B Determining each Guest's favorite HostHubs: Done ({round(time() - time1, 6)} seconds).")
 
 
-        CustomPrinting.print_pink(f"#5 Optimizing: Done ({timespan} seconds).", new_lines=3)
+        CustomLogger.info(f"#3C Exporting HostHubs ...")
         time1 = time()
         HostHub.export_hubs()
-        timespan = round(time() - time1, 6)
-        CustomPrinting.print_pink(f"#5 Optimizing: Done ({timespan} seconds).", new_lines=3)
+        CustomLogger.info(f"#3C Exporting HostHubs: Done ({round(time() - time1, 6)} seconds).")
 
     @staticmethod
     def determine_favorite_host_hubs():

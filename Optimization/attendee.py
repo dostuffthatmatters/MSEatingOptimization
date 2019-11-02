@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
 import requests
 import json
-from Helpers.custom_printing import CustomPrinting
-from Helpers.custom_math import CustomMath
 
+from Helpers.custom_logger import CustomLogger
 import Database.queries as db_query
 import Database.additions as db_addition
 
@@ -90,7 +89,7 @@ class Attendee(ABC):
         if zip_code_row is None:
             # Get Latitude an Longitude from Google Maps API
             request_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={zip_string}+München&key=AIzaSyCIFTVJuD_NRITAuxlIWYKIhnTzCBIr0wQ"
-            CustomPrinting.print_yellow(f"Now requesting from the Geocode API: {zip_string}")
+            CustomLogger.debug(f"Now requesting from the Geocode API: {zip_string}")
             response = requests.get(request_url)
 
             try:
@@ -103,11 +102,11 @@ class Attendee(ABC):
                 self.lat = 48.1447027
                 self.lng = 11.5821606
 
-            CustomPrinting.print_yellow(f"Adding to database: {zip_string} => coords: {self.lat}N, {self.lng}E")
+            CustomLogger.debug(f"Adding to database: {zip_string} => coords: {self.lat}N, {self.lng}E")
             db_addition.add_zip_code(zip_string, self.lat, self.lng)
 
         else:
-            CustomPrinting.print_yellow(f"Now fetching from database: {zip_string}")
+            CustomLogger.debug(f"Now fetching from database: {zip_string}")
             self.lat = zip_code_row.lat
             self.lng = zip_code_row.lng
 

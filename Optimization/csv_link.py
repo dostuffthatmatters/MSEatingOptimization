@@ -3,6 +3,7 @@ import csv
 from Optimization.attendee import Host, Guest
 
 from Helpers.custom_printing import CustomPrinting
+from Helpers.custom_logger import CustomLogger
 
 from time import time
 
@@ -11,7 +12,7 @@ def load_models(input_file):
         This method takes an 'input_file' (csv) and initializes all Host
         and Guest classes based on the data inside that table
     """
-    CustomPrinting.print_pink(f"#1 Loading Models ...")
+    CustomLogger.info("#1 Loading Models ...")
     time1 = time()
 
     with open(input_file, newline='') as csvfile:
@@ -47,8 +48,7 @@ def load_models(input_file):
                 # Pass parameters
                 Guest(False, **kwargs)
 
-    timespan = round(time() - time1, 6)
-    CustomPrinting.print_pink(f"#1 Loading Models: Done ({timespan} seconds).", new_lines=3)
+    CustomLogger.info(f"#1 Loading Models: Done ({round(time() - time1, 6)} seconds).")
 
 
 def export_models(output_file):
@@ -57,24 +57,19 @@ def export_models(output_file):
         exports all Host-Guest-Groups in a readable way and stores
         this inside a csv table at the location of 'output_file'.
     """
-    CustomPrinting.print_pink(f"#6 Exporting Models ...")
+    CustomLogger.info(f"#4 Exporting Models ...")
     time1 = time()
 
     rows = [["MATCHED GROUPS GUESTS"]]
-
-    for host in Host.instances:
-        if host.host:
-            rows += host.csv_row_representation()
+    for host in filter(lambda x: x.host, Host.instances):
+        rows += host.csv_row_representation()
 
     rows.append(["GUESTS WITH NO MATCH"])
-
-    for guest in Guest.instances:
-        if guest.host is None:
-            rows.append(guest.contact.unmatched_guest_row_representation())
+    for guest in filter(lambda x: x.host is None, Guest.instances):
+        rows.append(guest.contact.unmatched_guest_row_representation())
 
     with open(output_file, 'wt') as f:
         csv_writer = csv.writer(f)
         csv_writer.writerows(rows)
 
-    timespan = round(time() - time1, 6)
-    CustomPrinting.print_pink(f"#6 Exporting Models: Done ({timespan} seconds).", new_lines=3)
+    CustomLogger.info(f"#4 Exporting Models: Done ({round(time() - time1, 6)} seconds).")

@@ -4,6 +4,7 @@ from Optimization import visual_link
 from Optimization.attendee import Host, Guest
 from Helpers.custom_math import CustomMath
 from Helpers.custom_printing import CustomPrinting
+from Helpers.custom_logger import CustomLogger
 
 import Database.queries as db_query
 import Database.additions as db_addition
@@ -33,11 +34,12 @@ class Optimization:
         for i in range(len(zip_code_rows)):
             desired_length += i
 
-        CustomPrinting.print_pink(f"#2 Updating Distances ...")
+        CustomLogger.info(f"#2 Updating Distances ...")
         time1 = time()
 
         actual_length = len(db_query.get_all_zip_distance_rows())
-        CustomPrinting.print_yellow(f"{actual_length}/{desired_length} distances already calculated")
+        CustomLogger.debug(f"{actual_length}/{desired_length} distances already calculated",
+                           data_dict={"Number of zip codes": len(zip_code_rows)})
 
         if desired_length != actual_length:
 
@@ -45,21 +47,23 @@ class Optimization:
                 for zip_code_row_2 in zip_code_rows:
                     if zip_code_row_1.id == zip_code_row_2.id:
                         continue
-                    distance_query = db_query.get_zip_distance_row(zip_id_1=zip_code_row_1.id, zip_id_2=zip_code_row_2.id)
+                    distance_query = db_query.get_zip_distance_row(zip_string_1=zip_code_row_1.zip_string, zip_string_2=zip_code_row_2.zip_string)
                     if distance_query is None:
-                        CustomPrinting.print_yellow(f"Now calculating distance between {zip_code_row_1.zip_string} "
-                                                    f"and {zip_code_row_2.zip_string})")
+
                         origin = (zip_code_row_1.lat, zip_code_row_1.lng)
                         destination = (zip_code_row_2.lat, zip_code_row_2.lng)
                         distance = CustomMath.haversine(origin, destination)
-                        CustomPrinting.print_yellow(f"origin={origin}, destination={destination}")
-                        CustomPrinting.print_yellow(f"Distance={distance}")
+
+                        CustomLogger.debug(
+                            f"Now calculating distance between {zip_code_row_1.zip_string} and {zip_code_row_2.zip_string})",
+                            data_dict={"origin": origin, "destination": destination, "distance": distance})
+
                         db_addition.add_zip_distance(zip_code_row_1.id, zip_code_row_2.id, distance)
         else:
-            CustomPrinting.print_yellow(f"No distances left to be calculated")
+            CustomLogger.debug(f"No distances left to be calculated",
+                               data_dict={"Number of zip codes": len(zip_code_rows), "Number of distances": desired_length})
 
-        timespan = round(time() - time1, 6)
-        CustomPrinting.print_pink(f"#2 Updating Distances: Done ({timespan} seconds).", new_lines=3)
+        CustomLogger.info(f"#2 Updating Distances: Done ({round(time() - time1, 6)} seconds).")
 
     def execute(self):
         self.optimizer.optimize()
