@@ -8,10 +8,13 @@ Your optimizer has to inherit from the abstract base class found in `__init__.py
 
 ## How to interpret the generated images
 
-All green dots represent guests which are assigned to a host. All Red dots represent guests the didn't get assigned to a host (only occuring when there are not enough hosts).
+All green dots represent guests which are assigned to a host. All Red dots represent guests that didn't get assigned to a host (only occuring when there are not enough hosts).
 
 All blue dots represent hosts. The numbers above each (group of) hosts indicate the number of guests each host is assigned with.
 
+With this image you can actually see the optimization and also:
+* See if there are definitely more hosts needed in a specific area (ask specific guests to be hosts)
+* See if there are too many hosts in a specific area (Manually switch specific hosts to guests)
 
 
 ## What are HostHubs?
