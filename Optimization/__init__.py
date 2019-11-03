@@ -12,14 +12,13 @@ import Database.additions as db_addition
 from Optimization.Optimizer.moritz_01 import OptimizerMoritz01
 from Optimization.Optimizer.moritz_02 import OptimizerMoritz02
 from Optimization.Optimizer.moritz_03 import OptimizerMoritz03
-from Optimization.Optimizer.moritz_04 import OptimizerMoritz04
 
 from time import time
 
 
 class Optimization:
 
-    def __init__(self, input_file="Source/in.csv", output_file="Source/out.csv", optimizer=OptimizerMoritz04):
+    def __init__(self, input_file="Source/in.csv", output_file="Source/out.csv", optimizer=OptimizerMoritz03):
         self.input_file = input_file
         self.output_file = output_file
 
@@ -68,6 +67,6 @@ class Optimization:
 
     def execute(self):
         self.optimizer.optimize()
-        # csv_link.export_models(self.output_file)
+        csv_link.export_models(self.output_file)
         visual_link.export_image()
         return True, ""

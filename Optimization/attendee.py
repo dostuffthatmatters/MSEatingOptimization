@@ -140,9 +140,14 @@ class Host(Attendee):
         rows.append(Contact.empty_row_representation())
         return rows
 
-    def append_guest(self, guest):
-        self.guests.append(guest)
-        guest.host = self
+    def append_guests(self, guests):
+        if isinstance(guests, list):
+            self.guests += guests
+            for guest in guests:
+                guest.host = self
+        else:
+            self.guests.append(guests)
+            guests.host = self
 
 
 class Guest(Attendee):
@@ -164,7 +169,7 @@ class Guest(Attendee):
         self.favorite_host_hubs = []
 
     def __repr__(self):
-        return f"Guest(Name: {self.contact.name}, Coordinates: {round(self.lat, 7)}N, {round(self.lng, 7)}E)"
+        return f"Guest(Name: {self.contact.name}, Zip: {self.zip_string}, Assigned to Hub: {self.assigned_to_hub}, Host: {self.host})"
 
     def switch_host_hub(self, instance_list):
         if len(self.favorite_host_hubs) != 0:
@@ -183,5 +188,14 @@ class Guest(Attendee):
                 return host_hub["distance"]
         return 100000
 
-    def remove_host_hub_from_favorites(self, host_hub):
-        self.favorite_host_hubs = list(filter(lambda x: x["hub"] != host_hub, self.favorite_host_hubs))
+    def remove_host_hubs_from_favorites(self, host_hub_s):
+        if isinstance(host_hub_s, list):
+            self.favorite_host_hubs = list(filter(lambda x: x["hub"] not in host_hub_s, self.favorite_host_hubs))
+        else:
+            self.favorite_host_hubs = list(filter(lambda x: x["hub"] != host_hub_s, self.favorite_host_hubs))
+
+    def favorite_host_hub(self):
+        return self.favorite_host_hubs[0]["hub"]
+
+    def favorite_host_hub_distance(self):
+        return self.favorite_host_hubs[0]["distance"]
