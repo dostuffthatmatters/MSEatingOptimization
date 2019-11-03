@@ -187,10 +187,7 @@ class OptimizerMoritz03(Optimizer):
                 break
 
             for host_hub in hubs_with_free_spots:
-                guests_which_want_this_hub = []
-                for guest in guests_without_hub:
-                    if guest.favorite_host_hub().zip_strings == host_hub.zip_strings:
-                        guests_which_want_this_hub.append(guest)
+                guests_which_want_this_hub = list(filter(lambda x: x.favorite_host_hub() == host_hub, guests_without_hub))
 
                 if len(guests_which_want_this_hub) <= host_hub.max_guests_left:
                     guests_to_be_assigned = guests_which_want_this_hub
