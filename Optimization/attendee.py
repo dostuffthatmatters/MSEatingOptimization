@@ -124,6 +124,8 @@ class Host(Attendee):
                          name=name, allergies=allergies, mail=mail, phone_number=phone_number, semester=semester)
 
         Host.instances.append(self)
+
+        # END RESULT OF OPTIMIZER
         self.guests = []
 
     def __repr__(self):
@@ -163,9 +165,12 @@ class Guest(Attendee):
                          name=name, allergies=allergies, mail=mail, phone_number=phone_number, semester=semester)
 
         Guest.instances.append(self)
-        self.host = None
-        self.assigned_to_hub = False
 
+        # END RESULT OF OPTIMIZER
+        self.host = None
+
+        # Used by the optimizer
+        self.assigned_to_hub = False
         self.favorite_host_hubs = []
 
     def __repr__(self):

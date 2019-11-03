@@ -1,3 +1,13 @@
+## Optimizer Class
+
+The only requirements for an optimizer are to determine each `Host`-instance’s variable `<host>.guests` and each `Guest`-instance’s variable `<guest>.host`.
+
+
+
+Your optimizer has to inherit from the abstract base class found in `__init__.py` and has to implement the static method `<Optimizer>.optimize()`.
+
+
+
 ## What are HostHubs?
 
 
