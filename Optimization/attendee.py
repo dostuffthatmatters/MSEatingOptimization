@@ -6,6 +6,8 @@ from Helpers.custom_logger import CustomLogger
 import Database.queries as db_query
 import Database.additions as db_addition
 
+from secrets import Google_Geocoding_API_KEY
+
 region_zip_codes = {
     "Innenstadt": "80333",
     "Garching + Freimann": "80939",
@@ -88,7 +90,7 @@ class Attendee(ABC):
 
         if zip_code_row is None:
             # Get Latitude an Longitude from Google Maps API
-            request_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={zip_string}+München&key=AIzaSyCIFTVJuD_NRITAuxlIWYKIhnTzCBIr0wQ"
+            request_url = f"https://maps.googleapis.com/maps/api/geocode/json?address={zip_string}+München&key={Google_Geocoding_API_KEY}"
             CustomLogger.debug(f"Now requesting from the Geocode API: {zip_string}")
             response = requests.get(request_url)
 
