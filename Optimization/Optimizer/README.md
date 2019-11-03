@@ -2,9 +2,15 @@
 
 The only requirements for an optimizer are to determine each `Host`-instance’s variable `<host>.guests` and each `Guest`-instance’s variable `<guest>.host`.
 
-
-
 Your optimizer has to inherit from the abstract base class found in `__init__.py` and has to implement the static method `<Optimizer>.optimize()`.
+
+
+
+## How to interpret the generated images
+
+All green dots represent guests which are assigned to a host. All Red dots represent guests the didn't get assigned to a host (only occuring when there are not enough hosts).
+
+All blue dots represent hosts. The numbers above each (group of) hosts indicate the number of guests each host is assigned with.
 
 
 
