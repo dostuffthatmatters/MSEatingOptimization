@@ -1,3 +1,4 @@
+
 from Optimization.Optimizer import Optimizer
 from Optimization.attendee import Host, Guest
 

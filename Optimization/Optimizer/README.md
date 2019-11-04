@@ -24,11 +24,22 @@ Each HostHub has a specific set of hosts which therefore determine each hubs `ma
 
 
 
-## Idea of Optimizer Moritz 03
+## Ideas for Optimizer Moritz_01 (not to be used)
+
+Every Guest gets assigned it closest Host (Just as a starting point).
 
 
 
-1. For each guest, determine a list of all host hubs sorted by their distance to that guest:
+## Ideas for Optimizer Moritz_02 (not to be used)
+
+Introduction of Host Hubs. Every Host gets assigned as many guests as possible without assigning more than its max. allowed guests starting with the closest guest. 
+
+
+
+## Ideas for Optimizer Moritz_03
+
+1. Equal distribution of guests among hosts in a host hub!
+2. For each guest, determine a list of all host hubs sorted by their distance to that guest:
 
 ```python
 guest_instance.favorite_host_hubs = [
@@ -85,21 +96,21 @@ HostHub.update_hub_lists()
 
 
 
-## Ideas for Optimizer Moritz 04
+## Ideas for Optimizer Moritz_04 (efficiency!)
 
-1. Fully distribute the guests according to Optimizer Moritz 03
+The whole goal of this build is to increase efficiency of the optimization! It is mainly about two things:
+
+1. I initialize a lot of python `dictionaries` (e.g. each guests `favorite_host_hubs`-list). Creating dicts is costly! I could just use `lists` instead.
+
+2. I pass a lot of objects inside my code: `Guests`-instances and `HostHub`-instance are being passed a lot as function parameters. I am not sure about the efficiency of that but I could also implement id’s for all instances of a class and a very efficient look-up-table/class-method (e.g one single python dictionary for each class) and just pass these id’s instead of objects. I don’t know exactly how much this will increase efficiency.
+
+
+
+## Ideas for Optimizer Moritz_05
+
+1. Fully distribute the guests according to Optimizer Moritz_03/Moritz_04
 2. Iterate through the longest routes (e.g. longer than 2 * average distance):
     1. For all hosts closer to me than my current host: Is there a guest with whom I can switch hosts so that the overall travelled distance of the two of us is reduced (e.g. by at least 10%)
-
-
-
-## Ideas for efficiency optimization of the Optimizer
-
-I initialize a lot of python `dictionaries` (e.g. each guests `favorite_host_hubs`-list). Creating dicts is costly! I could just use `lists` instead.
-
-
-
-I pass a lot of objects inside my code: `Guests`-instances and `HostHub`-instance are being passed a lot as function parameters. I am not sure about the efficiency of that but I could also implement id’s for all instances of a class and a very efficient look-up-table/class-method (e.g one single python dictionary for each class) and just pass these id’s instead of objects. I don’t know exactly how much this will increase efficiency.
 
 
 
