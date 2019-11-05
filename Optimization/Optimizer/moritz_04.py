@@ -8,6 +8,7 @@ import Database.queries as db_query
 
 from time import time
 import cProfile
+import copy
 
 
 class HostHub:
@@ -153,13 +154,7 @@ class OptimizerMoritz04(Optimizer):
     @staticmethod
     def determine_favorite_host_hubs():
         for guest in Guest.instances:
-            favorite_host_hubs = []
-            for host_hub in HostHub.instances:
-                zip_string_1 = guest.zip_string
-                zip_string_2 = host_hub.zip_string
-                distance = OptimizerMoritz04.get_zip_distance(zip_string_1, zip_string_2)
-                favorite_host_hubs.append((host_hub, distance))
-
+            favorite_host_hubs = [(hub, OptimizerMoritz04.get_zip_distance(hub.zip_string, guest.zip_string)) for hub in HostHub.instances]
             favorite_host_hubs = list(sorted(favorite_host_hubs, key=lambda x: x[1]))
             guest.favorite_host_hubs = favorite_host_hubs
 
@@ -190,7 +185,8 @@ class OptimizerMoritz04(Optimizer):
                 if len(guests_which_want_this_hub) <= host_hub.max_guests_left:
                     guests_to_be_assigned = guests_which_want_this_hub
                 else:
-                    guests_which_want_this_hub = list(sorted(guests_which_want_this_hub, key=lambda x: x.favorite_host_hub_distance()))
+                    guests_which_want_this_hub = list(sorted(guests_which_want_this_hub,
+                                                             key=lambda x: x.favorite_host_hub_distance()))
                     guests_to_be_assigned = guests_which_want_this_hub[0:host_hub.max_guests_left]
 
                 CustomLogger.debug(f"{str(host_hub)}:", data_dict={

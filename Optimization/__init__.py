@@ -66,7 +66,8 @@ class Optimization:
         CustomLogger.info(f"#2 Updating Distances: Done ({round(time() - time1, 6)} seconds).")
 
     def execute(self):
-        cProfile.runctx("self.optimizer.optimize()", globals(), locals(), sort="time")
+        # cProfile.runctx("self.optimizer.optimize()", globals(), locals(), sort="time")
+        self.optimizer.optimize()
         csv_link.export_models(self.output_file)
         visual_link.export_image()
         return True, ""

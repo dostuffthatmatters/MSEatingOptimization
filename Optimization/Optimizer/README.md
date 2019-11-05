@@ -104,8 +104,11 @@ HostHub.update_hub_lists()
 The whole goal of this build is to increase efficiency of the optimization! It is mainly about two things:
 
 1. I initialize a lot of python `dictionaries` (e.g. each guests `favorite_host_hubs`-list). Creating dicts is costly! I could just use `lists` instead.
-
 2. I pass a lot of objects inside my code: `Guests`-instances and `HostHub`-instance are being passed a lot as function parameters. I am not sure about the efficiency of that but I could also implement id’s for all instances of a class and a very efficient look-up-table/class-method (e.g one single python dictionary for each class) and just pass these id’s instead of objects. I don’t know exactly how much this will increase efficiency.
+
+**Success! :)** The main factor slowing the program down was querying the database (not in memory …) So by caching the results inside a dictionary (hash table) I could resolve that issue. A few other minor tweaks to make the code more elegant.
+
+**Result** for 400 participants: Moritz_03 (Overall about 42 seconds) -> Moritz_04 (Overall about 12 seconds).
 
 
 
