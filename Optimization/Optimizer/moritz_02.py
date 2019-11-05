@@ -22,11 +22,11 @@ class HostHub:
             for host_hub in HostHub.instances:
                 for zip_string in host_hub.zip_strings:
                     if host.zip_string == zip_string:
-                        host_hub.append_hosts(host)
+                        host_hub.append_host(host)
                         added_to_hub = True
                         break
                     elif db_query.get_zip_distance(zip_string_1=host.zip_string, zip_string_2=zip_string) < HostHub.MAX_DISTANCE_BETWEEN_HOSTS:
-                        host_hub.append_hosts(host)
+                        host_hub.append_host(host)
                         added_to_hub = True
                         break
                 if added_to_hub:

@@ -7,6 +7,7 @@ from Helpers.custom_printing import CustomPrinting
 import Database.queries as db_query
 
 from time import time
+import cProfile
 
 
 class HostHub:
@@ -14,41 +15,30 @@ class HostHub:
 
     instances = []
 
-    def __init__(self):
-        self.hosts = []
+    def __init__(self, zip_string):
 
+        self.hosts = []
         self.guests_taken = []
+
         self.max_guests_left = 0
-        self.favorite_guests = []
         self.filled_up = True
 
-        self.zip_strings = []
+        self.zip_string = zip_string
         HostHub.instances.append(self)
 
-    def append_hosts(self, appendix):
-        if isinstance(appendix, Host):
-            self.hosts.append(appendix)
-            self.max_guests_left += appendix.max_guests
-            if appendix.zip_string not in self.zip_strings:
-                self.zip_strings.append(appendix.zip_string)
-        elif isinstance(appendix, list):
-            self.hosts += appendix
-            for host in appendix:
-                self.max_guests_left += host.max_guests
-                if host.zip_string not in self.zip_strings:
-                    self.zip_strings.append(host.zip_string)
+    def append_host(self, host):
+        self.hosts.append(host)
+        self.max_guests_left += host.max_guests
         self.filled_up = self.max_guests_left <= 0
 
-    def append_guests(self, appendix):
-        if isinstance(appendix, Guest):
-            self.guests_taken.append(appendix)
-            self.max_guests_left -= 1
-            appendix.assigned_to_hub = True
-        elif isinstance(appendix, list):
-            self.guests_taken += appendix
-            self.max_guests_left -= len(appendix)
-            for guest in appendix:
-                guest.assigned_to_hub = True
+    def append_guests(self, guests):
+        self.guests_taken += guests
+        self.max_guests_left -= len(guests)
+        for guest in guests:
+            guest.assigned_to_hub = True
+
+        if self.max_guests_left <= 0:
+            self.filled_up = True
 
     def export_hub(self):
 
@@ -56,7 +46,7 @@ class HostHub:
         # that is not full yet by one guest
         guest_index = 0
 
-        CustomLogger.debug(f"Exporting HostHub at {self.zip_strings}: {len(self.guests_taken)} guests and {len(self.hosts)} hosts")
+        CustomLogger.debug(f"Exporting HostHub at {self.zip_string}: {len(self.guests_taken)} guests and {len(self.hosts)} hosts")
 
         CustomLogger.debug(f"Iterating through hosts:", data_dict={
             "Hosts": [str(x) for x in self.hosts],
@@ -75,7 +65,7 @@ class HostHub:
             guest_index += host.max_guests
 
     def __repr__(self):
-        return f"HostHub(Zip String: {self.zip_strings}, Hosts: {len(self.hosts)}, Guests: {len(self.guests_taken)}, MaxGuests: {self.max_guests_left})"
+        return f"HostHub(Zip String: {self.zip_string}, Hosts: {len(self.hosts)}, Guests: {len(self.guests_taken)}, MaxGuests: {self.max_guests_left})"
 
 
     @staticmethod
@@ -83,34 +73,21 @@ class HostHub:
         for host in Host.instances:
             added_to_hub = False
             for host_hub in HostHub.instances:
-                for zip_string in host_hub.zip_strings:
-                    if host.zip_string == zip_string:
-                        host_hub.append_hosts(host)
-                        added_to_hub = True
-                        break
-                    elif db_query.get_zip_distance(zip_string_1=host.zip_string,
-                                                   zip_string_2=zip_string) < HostHub.MAX_DISTANCE_BETWEEN_HOSTS:
-                        host_hub.append_hosts(host)
-                        added_to_hub = True
-                        break
-                if added_to_hub:
-                    CustomLogger.debug(f"Extended HostHub at {host_hub.zip_strings}")
+                if host_hub.zip_string == host.zip_string:
+                    host_hub.append_host(host)
+                    added_to_hub = True
+                    CustomLogger.debug(f"Extended HostHub at {host_hub.zip_string}")
                     break
-
             if not added_to_hub:
-                new_host_hub = HostHub()
-                new_host_hub.append_hosts(host)
-                CustomLogger.debug(f"New HostHub at {new_host_hub.zip_strings}")
+                new_host_hub = HostHub(host.zip_string)
+                new_host_hub.append_host(host)
+                CustomLogger.debug(f"New HostHub at {new_host_hub.zip_string}")
 
     @staticmethod
     def update_hub_lists():
-        for host_hub in HostHub.instances:
-            if host_hub.max_guests_left <= 0:
-                host_hub.filled_up = True
-                for guest in Guest.instances:
-                    guest.remove_host_hubs_from_favorites(host_hub)
-            else:
-                host_hub.filled_up = False
+        host_hubs = list(filter(lambda hub: hub.max_guests_left <= 0, HostHub.instances))
+        for guest in Guest.instances:
+            guest.remove_host_hubs_from_favorites(host_hubs)
 
     @staticmethod
     def export_hubs():
@@ -127,6 +104,8 @@ class HostHub:
 
 
 class OptimizerMoritz04(Optimizer):
+
+    zip_distances = {}
 
     @staticmethod
     def optimize():
@@ -152,17 +131,36 @@ class OptimizerMoritz04(Optimizer):
         CustomLogger.info(f"#3.4 Exporting HostHubs: Done ({round(time() - time1, 6)} seconds).")
 
     @staticmethod
+    def get_zip_distance(zip_string_1, zip_string_2):
+        """
+        Storing the used zip-distances in a table is way more efficient than
+        querying the database every single time!
+        """
+        try:
+            distance = OptimizerMoritz04.zip_distances[zip_string_1][zip_string_2]
+        except KeyError:
+            distance = db_query.get_zip_distance(zip_string_1=zip_string_1, zip_string_2=zip_string_2)
+            if zip_string_1 not in OptimizerMoritz04.zip_distances:
+                OptimizerMoritz04.zip_distances[zip_string_1] = {zip_string_2: distance}
+            else:
+                OptimizerMoritz04.zip_distances[zip_string_1][zip_string_2] = distance
+            if zip_string_2 not in OptimizerMoritz04.zip_distances:
+                OptimizerMoritz04.zip_distances[zip_string_2] = {zip_string_1: distance}
+            else:
+                OptimizerMoritz04.zip_distances[zip_string_2][zip_string_1] = distance
+        return distance
+
+    @staticmethod
     def determine_favorite_host_hubs():
         for guest in Guest.instances:
             favorite_host_hubs = []
             for host_hub in HostHub.instances:
-                distance = 0
-                for zip_string in host_hub.zip_strings:
-                    distance += db_query.get_zip_distance(zip_string_1=guest.zip_string, zip_string_2=zip_string)
-                distance = round(distance / float(len(host_hub.zip_strings)), 3)
-                favorite_host_hubs.append({"hub": host_hub, "distance": distance})
+                zip_string_1 = guest.zip_string
+                zip_string_2 = host_hub.zip_string
+                distance = OptimizerMoritz04.get_zip_distance(zip_string_1, zip_string_2)
+                favorite_host_hubs.append((host_hub, distance))
 
-            favorite_host_hubs = list(sorted(favorite_host_hubs, key=lambda x: x["distance"]))
+            favorite_host_hubs = list(sorted(favorite_host_hubs, key=lambda x: x[1]))
             guest.favorite_host_hubs = favorite_host_hubs
 
             # CustomLogger.debug("Guests favorite_host_hubs", data_dict={"favorite_host_hubs": [[str(x["hub"]), x["distance"]] for x in guest.favorite_host_hubs]})

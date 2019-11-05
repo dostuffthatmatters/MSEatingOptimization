@@ -145,13 +145,9 @@ class Host(Attendee):
         return rows
 
     def append_guests(self, guests):
-        if isinstance(guests, list):
-            self.guests += guests
-            for guest in guests:
-                guest.host = self
-        else:
-            self.guests.append(guests)
-            guests.host = self
+        self.guests += guests
+        for guest in guests:
+            guest.host = self
 
 
 class Guest(Attendee):
@@ -178,31 +174,11 @@ class Guest(Attendee):
     def __repr__(self):
         return f"Guest(Name: {self.contact.name}, Zip: {self.zip_string}, Assigned to Hub: {self.assigned_to_hub}, Host: {self.host})"
 
-    def switch_host_hub(self, instance_list):
-        if len(self.favorite_host_hubs) != 0:
-            self.favorite_host_hubs.pop(0)
-
-        if len(self.favorite_host_hubs) != 0:
-            new_host_hub = self.favorite_host_hubs[0]["hub"]
-            if new_host_hub in instance_list and not new_host_hub.filled_up():
-                new_host_hub.append_guests(self)
-            else:
-                self.switch_host_hub(instance_list)
-
-    def distance_to_next_free_host_hub(self):
-        for host_hub in self.favorite_host_hubs:
-            if not host_hub["hub"].filled_up():
-                return host_hub["distance"]
-        return 100000
-
-    def remove_host_hubs_from_favorites(self, host_hub_s):
-        if isinstance(host_hub_s, list):
-            self.favorite_host_hubs = list(filter(lambda x: x["hub"] not in host_hub_s, self.favorite_host_hubs))
-        else:
-            self.favorite_host_hubs = list(filter(lambda x: x["hub"] != host_hub_s, self.favorite_host_hubs))
+    def remove_host_hubs_from_favorites(self, host_hubs):
+        self.favorite_host_hubs = list(filter(lambda x: x[0] not in host_hubs, self.favorite_host_hubs))
 
     def favorite_host_hub(self):
-        return self.favorite_host_hubs[0]["hub"]
+        return self.favorite_host_hubs[0][0]
 
     def favorite_host_hub_distance(self):
-        return self.favorite_host_hubs[0]["distance"]
+        return self.favorite_host_hubs[0][1]

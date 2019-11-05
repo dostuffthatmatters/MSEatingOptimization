@@ -13,6 +13,8 @@ from Optimization.Optimizer.moritz_04 import OptimizerMoritz04
 
 from time import time
 
+import cProfile
+
 
 class Optimization:
 
@@ -64,7 +66,7 @@ class Optimization:
         CustomLogger.info(f"#2 Updating Distances: Done ({round(time() - time1, 6)} seconds).")
 
     def execute(self):
-        self.optimizer.optimize()
+        cProfile.runctx("self.optimizer.optimize()", globals(), locals(), sort="time")
         csv_link.export_models(self.output_file)
         visual_link.export_image()
         return True, ""

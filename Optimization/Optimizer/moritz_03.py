@@ -108,7 +108,7 @@ class HostHub:
             if host_hub.max_guests_left <= 0:
                 host_hub.filled_up = True
                 for guest in Guest.instances:
-                    guest.remove_host_hubs_from_favorites(host_hub)
+                    guest.remove_host_hub_from_favorites(host_hub)
             else:
                 host_hub.filled_up = False
 
