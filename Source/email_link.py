@@ -8,8 +8,8 @@ from email.mime.text import MIMEText
 from secrets import OUTLOOK_CREDENTIALS_USER, OUTLOOK_CREDENTIALS_PASS, OUTLOOK_FROM_EMAIL, OUTLOOK_TO_EMAIL
 
 
-
 def get_message_batch_1_guest(name="<insert_name_here>"):
+    name = name.split(" ")[0]
     message = f"Servus {name}," \
               "\n\n" \
               "auf dich wartet ein super entspannter Abend mit deinen Kommilitonen!" \
@@ -25,7 +25,30 @@ def get_message_batch_1_guest(name="<insert_name_here>"):
     return message
 
 
+def get_message_batch_2_guest(name="<insert_name_here>", address="", phone_number=""):
+    name = name.split(" ")[0]
+    message = f"Servus {name}," \
+              "\n\n" \
+              "morgen ist es endlich soweit. Da du bislang immer noch keine Ahnung hast, " \
+              "wo du den Abend verbringen wirst, hier die Adresse von deinem Chefkoch-Gastgeber:\n" \
+              f"<strong>{address}</strong>" \
+              "\n\n" \
+              "Also erscheine morgen pünktlich um 18:00 vor ihrer/seiner Haustür. An der Klingel " \
+              "wird ein MSEating Schild hängen." \
+              "\n\n" \
+              "Viel Spaß bei der Suche!!" \
+              "\n\n" \
+              "Dein MSEating Team" \
+              "\n\n" \
+              f"PS: wenn du Probleme haben solltest, kannst du deinen Gastgeber hier erreichen: " \
+              f"<strong>{phone_number}</strong>\n" \
+              "(und denk daran: es gibt auch Googlemaps  & die  MVG-App ;P)"
+    return message
+
+
 def get_message_batch_1_host(name="<insert_name_here>", number_of_guests=0, food_requirements=[]):
+    name = name.split(" ")[0]
+
     # number_of_guests now includes the host itself
     number_of_guests += 1
 
@@ -64,6 +87,42 @@ def get_message_batch_1_host(name="<insert_name_here>", number_of_guests=0, food
     return message
 
 
+def get_message_batch_2_host(name="<insert_name_here>", guests=[]):
+    name = name.split(" ")[0]
+
+    # Rezeptvorschläge anhängen???
+
+    if len(guests) == 0:
+        guest_contacts = "Something went wrong here... :/"
+    else:
+        guest_contacts = ""
+        for guest in guests:
+            guest_contacts += f"\t* {guest['name']}, {guest['phone_number']}, {guest['mail_address']}\n"
+
+    message = f"Servus {name}," \
+              "\n\n" \
+              "das MSEating steht vor der Tür! Schon gespannt, mit wem du zusammen kochen wirst?" \
+              "\n\n" \
+              "Bitte denk daran, UNBEDINGT ein Schild an deiner Klingel anzubringen, worauf  " \
+              "„MSEating“ steht. So können dann hoffentlich alle deine Gäste pünktlich um 18 " \
+              "Uhr zu dir finden. Zudem solltest du schon jetzt entscheiden, was du morgen " \
+              "für deine Gäste kochen willst und vielleicht sogar einkaufen / eine Einkaufsliste " \
+              "schreiben. Ein paar mögliche Rezeptvorschläge siehst du unten angehängt." \
+              "\n\n" \
+              "Hier die Kontaktdaten deiner Gäste, für Notfälle (Bitte behalte die Informationen " \
+              "für dich, damit die Spannung nicht verloren geht!) :\n" \
+              f"{guest_contacts}" \
+              f"\n" \
+              "Falls du Probleme haben solltest, kannst du uns gerne anrufen: ##hier_nummer_von_mse##" \
+              "\n\n" \
+              "Dein MSEating-Team" \
+              "\n\n" \
+              "PS: Wenn du das Geld noch nicht abgeholt hast, hole dies bitte so schnell wie möglich " \
+              "nach! Oder willst du dir etwa die 7€ pro Teilnehmer entgehen lassen? ;) " \
+
+    return message
+
+
 def get_attendees_list(input_file="out.csv"):
     attendees_list = []
     with open(input_file, newline='') as csvfile:
@@ -76,20 +135,21 @@ def get_attendees_list(input_file="out.csv"):
             if name_and_type[-4:] == "ost)":
                 # This row belongs to a host
                 host_index += 1
-                address = row[1].replace("\"", "").replace("\u00df", "ss") + "," + row[2].replace("\"", "").replace("\u00fc", "ue")
+                address = row[1].replace("\"", "").replace("\u00df", "ss") + "," + row[2].replace("\"", "").replace(
+                    "\u00fc", "ue")
                 attendees_list.append({"name": name_and_type[:-7],
                                        "number_of_guests": 0,
                                        "food_requirements": [],
                                        "address": address,
-                                       "mail": row[4],
-                                       "phone": row[5],
+                                       "mail_address": row[4],
+                                       "phone_number": row[5],
                                        "guests": []})
             else:
                 if name_and_type[-7:] == "(Guest)":
                     # This row belongs to a matched guest
                     attendees_list[host_index]["guests"].append({"name": name_and_type[:-8],
-                                                                 "mail": row[3],
-                                                                 "phone": row[4],
+                                                                 "mail_address": row[3],
+                                                                 "phone_number": row[4],
                                                                  "food_requirements": row[1][11:]})
                     if row[1][11:] != "None":
                         attendees_list[host_index]["food_requirements"].append(row[1][11:])
@@ -98,25 +158,41 @@ def get_attendees_list(input_file="out.csv"):
     return attendees_list
 
 
-def send_mails_batch_1(input_file="out.csv"):
+def send_mails_for_batch(input_file="out.csv", batch=1):
     attendees_list = get_attendees_list(input_file=input_file)
     mails = []
     for host in attendees_list:
-        message = get_message_batch_1_host(name=host["name"],
-                                           number_of_guests=host["number_of_guests"],
-                                           food_requirements=host["food_requirements"])
-        mail_address = host["mail"]
+
+        if batch == 1:
+            message = get_message_batch_1_host(name=host["name"],
+                                               number_of_guests=host["number_of_guests"],
+                                               food_requirements=host["food_requirements"])
+        elif batch == 2:
+            message = get_message_batch_2_host(name=host["name"],
+                                               guests=host["guests"])
+        else:
+            return
+
+        mail_address = host["mail_address"]
         mails.append({"mail_address": mail_address, "subject": "You made it!", "message": message})
         for guest in host["guests"]:
-            message = get_message_batch_1_guest(name=guest["name"])
-            mail_address = guest["mail"]
+
+            if batch == 1:
+                message = get_message_batch_1_guest(name=guest["name"])
+            elif batch == 2:
+                message = get_message_batch_2_guest(name=guest["name"],
+                                                    address=host["address"],
+                                                    phone_number=host["phone_number"])
+            else:
+                return
+
+            mail_address = guest["mail_address"]
             mails.append({"mail_address": mail_address, "subject": "You made it!", "message": message})
 
     send_mails(mails)
 
 
 def send_mails(mails):
-
     # Just for testing
     if len(mails) > 10:
         mail_count = 10
@@ -130,7 +206,7 @@ def send_mails(mails):
 
     # for i in tqdm(range(len(mails))):
     for i in tqdm(range(mail_count)):
-        print("#"*10 + f"Sending Mail to {mails[i]['mail_address']}" + "#"*10)
+        print("#" * 10 + f"Sending Mail to {mails[i]['mail_address']}" + "#" * 10)
 
         # Set up message
         msg = MIMEMultipart()
@@ -147,4 +223,4 @@ def send_mails(mails):
 
 
 if __name__ == "__main__":
-    send_mails_batch_1()
+    send_mails_for_batch(batch=2)
