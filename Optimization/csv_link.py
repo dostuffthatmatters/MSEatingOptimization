@@ -16,8 +16,8 @@ def load_models(input_file):
     time1 = time()
 
     with open(input_file, newline='') as csvfile:
-        spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
-        for row in spamreader:
+        rows = csv.reader(csvfile, delimiter=',', quotechar='|')
+        for row in rows:
 
             # Skip first row
             if row[0] == 'Region':
