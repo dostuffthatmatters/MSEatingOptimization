@@ -94,11 +94,23 @@ def get_attendees_list(input_file="out.csv"):
 
 def send_mails_batch_1(input_file="out.csv"):
     attendees_list = get_attendees_list(input_file=input_file)
-    print(json.dumps(attendees_list, indent=4))
+    for host in attendees_list:
+        print("\n"*5 + "-"*40 + "\n"*5)
+        message = get_message_batch_1_host(name=host["name"],
+                                           number_of_guests=host["number_of_guests"],
+                                           food_requirements=host["food_requirements"])
+        mail_address = host["mail"]
+        send_mail(mail_address=mail_address, message=message)
+        for guest in host["guests"]:
+            message = get_message_batch_1_guest(name=guest["name"])
+            mail_address = guest["mail"]
+            print("\n"*5)
+            send_mail(mail_address=mail_address, message=message)
 
 
-def send_mail(mail_address, message):
-    pass
+def send_mail(mail_address="", message=""):
+    print("#"*10 + f"Sending Mail to {mail_address}" + "#"*10)
+    print(message)
 
 
 if __name__ == "__main__":
