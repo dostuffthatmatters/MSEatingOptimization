@@ -16,7 +16,11 @@ You have to add a file `secrets.py` with the following content:
 
 ```python
 
-Google_Geocoding_API_KEY = "..."  # You can get this key from the Google Developer Console (or ask me)
+GOOGLE_GEOCODING_API_KEY = "..."  # You can get this key from the Google Developer Console (or ask me)
+
+OUTLOOK_CREDENTIALS_USER = "..."
+OUTLOOK_CREDENTIALS_PASS = "..."
+OUTLOOK_FROM_EMAIL = "..."
 
 ```
 
