@@ -1,6 +1,12 @@
 import csv
-import copy
-import json
+from tqdm import tqdm
+
+import smtplib
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from secrets import OUTLOOK_CREDENTIALS_USER, OUTLOOK_CREDENTIALS_PASS, OUTLOOK_FROM_EMAIL, OUTLOOK_TO_EMAIL
+
 
 
 def get_message_batch_1_guest(name="<insert_name_here>"):
@@ -94,23 +100,50 @@ def get_attendees_list(input_file="out.csv"):
 
 def send_mails_batch_1(input_file="out.csv"):
     attendees_list = get_attendees_list(input_file=input_file)
+    mails = []
     for host in attendees_list:
-        print("\n"*5 + "-"*40 + "\n"*5)
         message = get_message_batch_1_host(name=host["name"],
                                            number_of_guests=host["number_of_guests"],
                                            food_requirements=host["food_requirements"])
         mail_address = host["mail"]
-        send_mail(mail_address=mail_address, message=message)
+        mails.append({"mail_address": mail_address, "subject": "You made it!", "message": message})
         for guest in host["guests"]:
             message = get_message_batch_1_guest(name=guest["name"])
             mail_address = guest["mail"]
-            print("\n"*5)
-            send_mail(mail_address=mail_address, message=message)
+            mails.append({"mail_address": mail_address, "subject": "You made it!", "message": message})
+
+    send_mails(mails)
 
 
-def send_mail(mail_address="", message=""):
-    print("#"*10 + f"Sending Mail to {mail_address}" + "#"*10)
-    print(message)
+def send_mails(mails):
+
+    # Just for testing
+    if len(mails) > 10:
+        mail_count = 10
+    else:
+        mail_count = len(mails)
+
+    # Set up the SMTP server
+    s = smtplib.SMTP(host='postout.lrz.de', port=587)
+    s.starttls()
+    s.login(OUTLOOK_CREDENTIALS_USER, OUTLOOK_CREDENTIALS_PASS)
+
+    # for i in tqdm(range(len(mails))):
+    for i in tqdm(range(mail_count)):
+        print("#"*10 + f"Sending Mail to {mails[i]['mail_address']}" + "#"*10)
+
+        # Set up message
+        msg = MIMEMultipart()
+        msg['From'] = OUTLOOK_FROM_EMAIL
+        msg['To'] = OUTLOOK_TO_EMAIL  # mails[i]["mail_address"]
+        msg['Bcc'] = ""
+        msg['Subject'] = mails[i]["subject"]
+        msg.attach(MIMEText(mails[i]["message"].replace("\n", "<br/>"), 'html'))
+
+        # Send message
+        s.send_message(msg)
+
+        del msg
 
 
 if __name__ == "__main__":
