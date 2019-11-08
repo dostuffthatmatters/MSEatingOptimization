@@ -34,6 +34,8 @@ class HostHub:
         self.max_guests_left -= len(guests)
         for guest in guests:
             guest.assigned_to_hub = True
+            guest.distance_to_hub = OptimizerMoritz04.zip_distances[guest.zip_string][self.zip_string]
+            guest.hub = self
 
         if self.max_guests_left <= 0:
             self.filled_up = True

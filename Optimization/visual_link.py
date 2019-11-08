@@ -146,7 +146,7 @@ def draw_image(source="Source/munich.png",
         # Draw the number of guests at each HostHub
         if dot_locations[x][y] == 0:
             text = host_locations[x][y]
-            draw.text((x - (len(text) * 6), y - (10 * size_multiplier)), text, font=font, fill=(255, 100, 100))
+            draw.text((x - (len(text) * 6 * size_multiplier), y - (10 * size_multiplier)), text, font=font, fill=(255, 100, 100))
 
 
     matched_guests = list(filter(lambda x: x.assigned_to_hub, Guest.instances))
@@ -155,7 +155,7 @@ def draw_image(source="Source/munich.png",
         average_travel_distance += guest.distance_to_hub
     average_travel_distance /= len(matched_guests)
 
-    draw.text((20, 20), f"Average Distance = {average_travel_distance}", font=big_font, fill=(200, 0, 0))
+    draw.text((20, 20), f"Average Travel Distance = {round(average_travel_distance,2)} meters", font=big_font, fill=(200, 0, 0))
 
     img.save(destination)
 

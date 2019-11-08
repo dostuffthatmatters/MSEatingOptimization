@@ -223,19 +223,17 @@ class OptimizerMoritz05(Optimizer):
     def switch_guests():
         round_number = 0
 
-        while True:
+        average_travel_distance = 0
 
-            if round_number == 6:
-                break
-            round_number += 1
+        while True:
 
             matched_guests = list(filter(lambda x: x.assigned_to_hub, Guest.instances))
             matched_guests = list(sorted(matched_guests, key=lambda x: x.distance_to_hub))
 
-            average_travel_distance = 0
+            new_average_travel_distance = 0
             for guest in matched_guests:
-                average_travel_distance += guest.distance_to_hub
-            average_travel_distance /= len(matched_guests)
+                new_average_travel_distance += guest.distance_to_hub
+            new_average_travel_distance /= len(matched_guests)
 
             guests_with_long_distances = list(
                 filter(lambda x: x.distance_to_hub > 3 * average_travel_distance, matched_guests))
@@ -243,16 +241,29 @@ class OptimizerMoritz05(Optimizer):
                 filter(lambda x: x.distance_to_hub <= 3 * average_travel_distance, matched_guests))
 
             print(f"{len(guests_with_short_distances)} short guests, {len(guests_with_long_distances)} long guests.")
-            print(f"Average travel distance = {average_travel_distance}\n")
+            print(f"Average travel distance = {new_average_travel_distance}\n")
+
+            if round_number >= 100 or round(new_average_travel_distance, 6) == round(average_travel_distance, 6):
+                print(f"Stopped execution after iteration {round_number}.\n")
+                break
+
+            average_travel_distance = new_average_travel_distance
+
+            round_number += 1
+
+            switched_guests = []
 
             for unlucky_guest in guests_with_long_distances:
                 # Determine the partner where the switch is best
                 saved_distance_when_switched = 0
                 switch_partner = None
 
+                if unlucky_guest in switched_guests:
+                    continue
+
                 for lucky_guest in matched_guests:
                     # for lucky_guest in guests_with_short_distances:
-                    if unlucky_guest.hub == lucky_guest.hub:
+                    if unlucky_guest.hub == lucky_guest.hub or lucky_guest in switched_guests:
                         continue
                     distance_before_switch = unlucky_guest.distance_to_hub + lucky_guest.distance_to_hub
 
@@ -265,6 +276,9 @@ class OptimizerMoritz05(Optimizer):
                         saved_distance_when_switched = distance_before_switch - distance_after_switch
 
                 if switch_partner is not None:
+
+                    switched_guests.append(unlucky_guest)
+                    switched_guests.append(switch_partner)
 
                     # Actually switch spots
                     unlucky_guest.hub.guests_taken.remove(unlucky_guest)
@@ -284,7 +298,7 @@ class OptimizerMoritz05(Optimizer):
                     switch_partner.hub = unlucky_hub
                     switch_partner.distance_to_hub = OptimizerMoritz05.zip_distances[switch_partner.zip_string][unlucky_guest.hub.zip_string]
 
-                    matched_guests.remove(switch_partner)
+                    # matched_guests.remove(switch_partner)
 
 
 
