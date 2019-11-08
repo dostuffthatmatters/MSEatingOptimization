@@ -171,14 +171,17 @@ def draw_image(source="Source/munich.png",
 
     matched_guests = list(filter(lambda x: x.assigned_to_hub, Guest.instances))
     average_travel_distance = 0
+    average_squared_travel_distance = 0
     for guest in matched_guests:
         average_travel_distance += guest.distance_to_hub
+        average_squared_travel_distance += pow(guest.distance_to_hub, 2)
         distance_category_index = round((guest.distance_to_hub / 1000.0) - 0.499999)
         distance_category_index = 5 if distance_category_index > 5 else distance_category_index
         distance_categories_count[distance_category_index] += 1
 
     average_travel_distance /= len(matched_guests)
-
+    average_squared_travel_distance /= len(matched_guests)
+    average_squared_travel_distance /= pow(average_squared_travel_distance, 0.5)
 
     draw.text((20, 20), f"Average Travel Distance = {round(average_travel_distance,2)} meters", font=big_font, fill=(200, 0, 0))
 
@@ -213,6 +216,7 @@ def draw_image(source="Source/munich.png",
     draw.text(img_coords_legend_text_5p, f"5.000 <         -> {distance_categories_count[5]} Guests", font=medium_font, fill=img_colors_legend_5p)
 
     draw.text((20, 20), f"Average Travel Distance = {round(average_travel_distance,2)} meters", font=big_font, fill=(200, 0, 0))
+    draw.text((20, 100), f"Root Mean Squared Travel Distance = {round(average_squared_travel_distance,2)} meters", font=big_font, fill=(200, 0, 0))
 
     img.save(destination)
 
@@ -249,7 +253,7 @@ def export_image():
     max_lng = 11.730366
     size_multiplier = 1.5
 
-    # """
+    """
     draw_image(source=source,
                destination=destination,
                min_lat=min_lat,
@@ -257,6 +261,6 @@ def export_image():
                min_lng=min_lng,
                max_lng=max_lng,
                size_multiplier=size_multiplier)
-    # """
+    """
 
     CustomLogger.info(f"#5 Generating Images: Done ({round(time() - time1, 6)} seconds).")
