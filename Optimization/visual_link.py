@@ -169,7 +169,7 @@ def draw_image(source="Source/munich.png",
     # Categories: 0-1km, 1-2km, 2-3km, 3-4km, 4-5km, 5+km
     distance_categories_count = [0, 0, 0, 0, 0, 0]
 
-    matched_guests = list(filter(lambda x: x.assigned_to_hub, Guest.instances))
+    matched_guests = list(filter(lambda x: x.host is not None, Guest.instances))
     average_travel_distance = 0
     average_squared_travel_distance = 0
     for guest in matched_guests:
