@@ -7,40 +7,39 @@ from Helpers.custom_logger import CustomLogger
 from time import time
 import logging
 
-
 logging.getLogger('pillow').setLevel(logging.WARNING)
 logging.getLogger('PIL').setLevel(logging.WARNING)
 logging.getLogger('pil').setLevel(logging.WARNING)
 
 
-# noinspection PyShadowingNames
-def export_image():
+def draw_image(source="Source/munich.png",
+               destination="Source/munich_out.png",
+               min_lat=48.057483,
+               max_lat=48.253319,
+               min_lng=11.352409,
+               max_lng=11.730366,
+               size_multiplier=1):
     """
-        This function generates and saves and images based on
-        the current Host/Guest configuration.
-    """
-    CustomLogger.info(f"#5 Generating Image ...")
-    time1 = time()
+            This function generates and saves and images based on
+            the current Host/Guest configuration.
+        """
 
     # Static background image of munich on which is painted on
-    img = Image.open("Source/munich.png")
+    img = Image.open(source)
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype("Source/Courier_New_Bold.ttf", 20)
+    font = ImageFont.truetype("Source/Courier_New_Bold.ttf", round(20 * size_multiplier))
 
-    # I downloaded a static image and evaluated the boundaries myself
-    min_lat = 48.057483
-    max_lat = 48.253319
-    min_lng = 11.352409
-    max_lng = 11.730366
-
+    """
     # Dimensions of the images
     width = 3335
     height = 2603
+    """
 
     # Dimensions of the elements to be drawn
-    line_width = 6
-    circle_size = 24
-    ring_steps = 12
+    width, height = img.size
+    line_width = round(6 * size_multiplier)
+    circle_size = round(24 * size_multiplier)
+    ring_steps = round(12 * size_multiplier)
 
     # Determining all dots to be drawn (x, y)-image-coordinates
     green_dots_to_be_drawn = []
@@ -59,8 +58,8 @@ def export_image():
     # Determine all host dots (blue) and draw all lines between
     # hosts and guests
     for host in Host.instances:
-        x_host = round(width * (host.lng - min_lng)/(max_lng - min_lng))
-        y_host = height - round(height * (host.lat - min_lat)/(max_lat - min_lat))
+        x_host = round(width * (host.lng - min_lng) / (max_lng - min_lng))
+        y_host = height - round(height * (host.lat - min_lat) / (max_lat - min_lat))
 
         # Updating the number of guests for this host_hub as a string
         if x_host not in host_locations:
@@ -146,8 +145,49 @@ def export_image():
         # Draw the number of guests at each HostHub
         if dot_locations[x][y] == 0:
             text = host_locations[x][y]
-            draw.text((x-(len(text)*6), y-10), text, font=font, fill=(255, 100, 100))
+            draw.text((x - (len(text) * 6), y - 10), text, font=font, fill=(255, 100, 100))
 
-    img.save("Source/out.png")
-    CustomLogger.info(f"#5 Generating Image: Done ({round(time() - time1, 6)} seconds).")
-    img.show()
+    img.save(destination)
+
+
+
+# noinspection PyShadowingNames
+def export_image():
+    CustomLogger.info(f"#5 Generating Images ...")
+    time1 = time()
+
+    # I downloaded a static image and evaluated the boundaries myself
+    source = "Source/munich.png"
+    destination = "Source/munich_out.png"
+    min_lat = 48.057483
+    max_lat = 48.253319
+    min_lng = 11.352409
+    max_lng = 11.730366
+    size_multiplier = 1
+
+    draw_image(source=source,
+               destination=destination,
+               min_lat=min_lat,
+               max_lat=max_lat,
+               min_lng=min_lng,
+               max_lng=max_lng,
+               size_multiplier=size_multiplier)
+
+    # I downloaded a static image and evaluated the boundaries myself
+    source = "Source/munich.png"
+    destination = "Source/munich_out.png"
+    min_lat = 48.057483
+    max_lat = 48.253319
+    min_lng = 11.352409
+    max_lng = 11.730366
+    size_multiplier = 1
+
+    draw_image(source=source,
+               destination=destination,
+               min_lat=min_lat,
+               max_lat=max_lat,
+               min_lng=min_lng,
+               max_lng=max_lng,
+               size_multiplier=size_multiplier)
+
+    CustomLogger.info(f"#5 Generating Images: Done ({round(time() - time1, 6)} seconds).")

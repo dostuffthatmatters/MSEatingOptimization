@@ -8,6 +8,7 @@ Playground
 *.db
 out.csv
 out.png
+*out.png
 
 
 
