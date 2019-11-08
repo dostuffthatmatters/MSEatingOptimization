@@ -226,3 +226,12 @@ Here is the optimized distribution the brute-forcing with **minimized *squared* 
 
 ![](56_comparison/squared_error.png)
 
+
+
+
+## Ideas for the Future
+
+I could use the **API of the public transit company of munich (MVG)** to evaluate the distances between 
+guests and host regarding travel time with public transit and not just the straight geometric distance.
+
+
