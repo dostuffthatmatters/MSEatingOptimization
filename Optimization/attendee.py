@@ -166,9 +166,12 @@ class Guest(Attendee):
 
         # END RESULT OF OPTIMIZER
         self.host = None
+        self.hub = None
 
         # Used by the optimizer
         self.assigned_to_hub = False
+        self.distance_to_hub = 0
+
         self.favorite_host_hubs = []
 
     def __repr__(self):

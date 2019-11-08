@@ -7,6 +7,8 @@ import Database.queries as db_query
 
 from time import time
 
+import copy
+
 
 class HostHub:
     MAX_DISTANCE_BETWEEN_HOSTS = 500
@@ -34,6 +36,8 @@ class HostHub:
         self.max_guests_left -= len(guests)
         for guest in guests:
             guest.assigned_to_hub = True
+            guest.distance_to_hub = OptimizerMoritz05.zip_distances[guest.zip_string][self.zip_string]
+            guest.hub = self
 
         if self.max_guests_left <= 0:
             self.filled_up = True
@@ -123,10 +127,16 @@ class OptimizerMoritz05(Optimizer):
         OptimizerMoritz05.distribute_guests()
         CustomLogger.info(f"#3.3 Distributing Guests: Done ({round(time() - time1, 6)} seconds).")
 
-        CustomLogger.info(f"#3.4 Exporting HostHubs ...")
+        CustomLogger.info(f"#3.4 Switching Guests ...")
+        time1 = time()
+        OptimizerMoritz05.switch_guests()
+        CustomLogger.info(f"#3.4 Switching Guests: Done ({round(time() - time1, 6)} seconds).")
+
+        CustomLogger.info(f"#3.5 Exporting HostHubs ...")
         time1 = time()
         HostHub.export_hubs()
-        CustomLogger.info(f"#3.4 Exporting HostHubs: Done ({round(time() - time1, 6)} seconds).")
+        CustomLogger.info(f"#3.5 Exporting HostHubs: Done ({round(time() - time1, 6)} seconds).")
+
 
     @staticmethod
     def get_zip_distance(zip_string_1, zip_string_2):
@@ -148,6 +158,7 @@ class OptimizerMoritz05(Optimizer):
                 OptimizerMoritz05.zip_distances[zip_string_2][zip_string_1] = distance
         return distance
 
+
     @staticmethod
     def determine_favorite_host_hubs():
         for guest in Guest.instances:
@@ -156,6 +167,7 @@ class OptimizerMoritz05(Optimizer):
             guest.favorite_host_hubs = favorite_host_hubs
 
             # CustomLogger.debug("Guests favorite_host_hubs", data_dict={"favorite_host_hubs": [[str(x["hub"]), x["distance"]] for x in guest.favorite_host_hubs]})
+
 
     @staticmethod
     def distribute_guests():
@@ -205,3 +217,81 @@ class OptimizerMoritz05(Optimizer):
                 })
 
             HostHub.update_hub_lists()
+
+
+    @staticmethod
+    def switch_guests():
+        round_number = 0
+
+        while True:
+
+            if round_number == 6:
+                break
+            round_number += 1
+
+            matched_guests = list(filter(lambda x: x.assigned_to_hub, Guest.instances))
+            matched_guests = list(sorted(matched_guests, key=lambda x: x.distance_to_hub))
+
+            average_travel_distance = 0
+            for guest in matched_guests:
+                average_travel_distance += guest.distance_to_hub
+            average_travel_distance /= len(matched_guests)
+
+            guests_with_long_distances = list(
+                filter(lambda x: x.distance_to_hub > 3 * average_travel_distance, matched_guests))
+            guests_with_short_distances = list(
+                filter(lambda x: x.distance_to_hub <= 3 * average_travel_distance, matched_guests))
+
+            print(f"{len(guests_with_short_distances)} short guests, {len(guests_with_long_distances)} long guests.")
+            print(f"Average travel distance = {average_travel_distance}\n")
+
+            for unlucky_guest in guests_with_long_distances:
+                # Determine the partner where the switch is best
+                saved_distance_when_switched = 0
+                switch_partner = None
+
+                for lucky_guest in guests_with_short_distances:
+                    distance_before_switch = unlucky_guest.distance_to_hub + lucky_guest.distance_to_hub
+
+                    new_possible_distance_of_unlucky_guest = OptimizerMoritz05.zip_distances[unlucky_guest.zip_string][lucky_guest.hub.zip_string]
+                    new_possible_distance_of_lucky_guest = OptimizerMoritz05.zip_distances[lucky_guest.zip_string][unlucky_guest.hub.zip_string]
+                    distance_after_switch = new_possible_distance_of_unlucky_guest + new_possible_distance_of_lucky_guest
+
+                    if saved_distance_when_switched < (distance_before_switch - distance_after_switch):
+                        switch_partner = lucky_guest
+                        saved_distance_when_switched = distance_before_switch - distance_after_switch
+
+                if switch_partner is not None:
+                    # Actually switch spots
+                    unlucky_guest.hub.guests_taken.remove(unlucky_guest)
+                    unlucky_guest.hub.guests_taken.append(switch_partner)
+                    unlucky_hub = copy.deepcopy(unlucky_guest.hub)
+                    unlucky_guest.hub = switch_partner.hub
+                    unlucky_guest.distance_to_hub = OptimizerMoritz05.zip_distances[unlucky_guest.zip_string][switch_partner.hub.zip_string]
+
+                    switch_partner.hub.guests_taken.remove(switch_partner)
+                    switch_partner.hub.guests_taken.append(unlucky_guest)
+                    switch_partner.hub = unlucky_hub
+                    switch_partner.distance_to_hub = OptimizerMoritz05.zip_distances[switch_partner.zip_string][unlucky_guest.hub.zip_string]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
