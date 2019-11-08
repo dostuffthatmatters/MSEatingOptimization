@@ -1,4 +1,4 @@
-## Optimizer Class
+## /Optimizer Class
 
 The only requirements for an optimizer are to determine each `Host`-instance’s variable `<host>.guests` and each `Guest`-instance’s variable `<guest>.host`.
 
@@ -110,15 +110,123 @@ The whole goal of this build is to increase efficiency of the optimization! It i
 
 **Result** for 400 participants: Moritz_03 (Overall about 42 seconds) -> Moritz_04 (Overall about 12 seconds).
 
+**Important:** The optimizer v4 will produce exactly the same result as the optimizer v5. It’s just faster ;).
+
 
 
 ## Ideas for Optimizer Moritz_05
 
 1. Fully distribute the guests according to Optimizer Moritz_03/Moritz_04
-2. Iterate through the longest routes (e.g. longer than 2 * average distance):
-    1. For all hosts closer to me than my current host: Is there a guest with whom I can switch hosts so that the overall travelled distance of the two of us is reduced (e.g. by at least 10%)
+2. Iterate through the longest routes (e.g. longer than 50% of the average distance):
+    1. Is there a guest with whom I can switch hosts so that the overall travelled distance of the two of us is reduced
 
 
 
+This is the **Core-Optimization**:
 
+```python
+
+round_number = 0
+average_travel_distance = 0
+
+while True:
+	matched_guests = list(filter(lambda x: x.assigned_to_hub, Guest.instances))
+  matched_guests = list(sorted(matched_guests, key=lambda x: x.distance_to_hub))
+
+  
+  new_average_travel_distance = 0
+  for guest in matched_guests:
+    new_average_travel_distance += guest.distance_to_hub
+    new_average_travel_distance /= len(matched_guests)
+	
+  # Determine all guests to be possibly rematched
+	guests_with_long_distances = list(
+    filter(lambda x: x.distance_to_hub > 1.5 * new_average_travel_distance, matched_guests))
+
+  # At least 10 itearations
+  # stop iterating, when optimization is not converging anymore
+  # At most 100 iterations
+	if round_number > 10:
+		if round_number >= 100 or round(new_average_travel_distance, 6) == round(average_travel_distance, 6):
+      break
+	
+  # Using two variables for the average distance so we can detect the rate of convergence between iterations
+  average_travel_distance = new_average_travel_distance
+  round_number += 1
+	
+  # Prevent to switch one participant twice in one iteration -> Weird convergence
+  switched_guests = []
+
+  for unlucky_guest in guests_with_long_distances[::]:
+    # Determine the partner where the switch is best
+    saved_distance_when_switched = 0
+    switch_partner = None
+
+    if unlucky_guest in switched_guests:
+      continue
+
+    for lucky_guest in matched_guests:
+			if unlucky_guest.hub == lucky_guest.hub or lucky_guest in switched_guests:
+        continue
+			
+      # Compare distances how they are and how they would be if
+      # 'unlucky_guest' and 'lucky_guest' were to switch places
+
+      if (distance_before_switch - distance_after_switch) > saved_distance_when_switched:
+      	switch_partner = lucky_guest
+        saved_distance_when_switched = distance_before_switch - distance_after_switch
+
+		if switch_partner is not None:
+      # Actually switch spots
+
+      # Prevent these two participants to take part in another switch this round
+      switched_guests.append(unlucky_guest)
+      switched_guests.append(switch_partner)
+
+      # Change each guest's hub reference
+      unlucky_guest.hub, switch_partner.hub = switch_partner.hub, unlucky_guest.hub
+
+      # Changes each guest's hub's guest list
+      unlucky_guest.hub.guests_taken.remove(switch_partner)
+      unlucky_guest.hub.guests_taken.append(unlucky_guest)
+      switch_partner.hub.guests_taken.remove(unlucky_guest)
+      switch_partner.hub.guests_taken.append(switch_partner)
+
+      # Change each guest's distance_to_hub value
+      unlucky_guest.distance_to_hub = OptimizerMoritz05.zip_distances[unlucky_guest.zip_string][unlucky_guest.hub.zip_string]
+      switch_partner.distance_to_hub = OptimizerMoritz05.zip_distances[switch_partner.zip_string][switch_partner.hub.zip_string]
+
+```
+
+
+
+Here is the optimized distribution **before** this brute-force approach:
+
+![](45_comparison/brute_forcing_fine_trim_04.png)
+
+
+
+Here is the optimized distribution **after** this brute-force approach:
+
+![](45_comparison/brute_forcing_fine_trim_05.png)
+
+
+
+## Ideas for Optimizer Moritz_06
+
+The thing is, the quality-measurement that is used most in optimization/approximation problems is the squared error (squared travelled distance) instead of the linear error.
+
+So I used the squard travelled distance in the Optimizer v6:
+
+
+
+Here is the optimized distribution the brute-forcing with **minimized *linear* travel distance**:
+
+![](56_comparison/linear_error.png)
+
+
+
+Here is the optimized distribution the brute-forcing with **minimized *squared* travel distance**:
+
+![](56_comparison/squared_error.png)
 

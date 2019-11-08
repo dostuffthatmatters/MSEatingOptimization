@@ -9,14 +9,14 @@ from Helpers.custom_logger import CustomLogger
 import Database.queries as db_query
 import Database.additions as db_addition
 
-from Optimization.Optimizer.moritz_04 import OptimizerMoritz04
+from Optimization.Optimizer.moritz_05 import OptimizerMoritz05
 
 from time import time
 
 
 class Optimization:
 
-    def __init__(self, input_file="Source/in.csv", output_file="Source/out.csv", optimizer=OptimizerMoritz04):
+    def __init__(self, input_file="Source/in.csv", output_file="Source/out.csv", optimizer=OptimizerMoritz05):
         self.input_file = input_file
         self.output_file = output_file
 

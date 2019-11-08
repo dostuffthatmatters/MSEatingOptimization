@@ -247,9 +247,7 @@ class OptimizerMoritz06(Optimizer):
             new_average_squared_travel_distance /= len(matched_guests)
 
             guests_with_long_distances = list(
-                filter(lambda x: pow(x.distance_to_hub, 2) > 1.5 * average_squared_travel_distance, matched_guests))
-            guests_with_short_distances = list(
-                filter(lambda x: pow(x.distance_to_hub, 2) <= 1.5 * average_squared_travel_distance, matched_guests))
+                filter(lambda x: pow(x.distance_to_hub, 2) > 1.5 * new_average_squared_travel_distance, matched_guests))
 
             if round_number == 0:
                 CustomLogger.info(f"Starting Brute-Force-Approach @ average_squared_travel_distance = {round(new_average_squared_travel_distance, 3)} meters")
@@ -267,7 +265,7 @@ class OptimizerMoritz06(Optimizer):
             round_number += 1
 
             CustomLogger.debug(
-                f"Switching Guests -> Round {round_number} ({len(guests_with_short_distances)} " +
+                f"Switching Guests -> Round {round_number} ({len(matched_guests) - len(guests_with_long_distances)} " +
                 f"short_routed_guests, {len(guests_with_long_distances)} long_routed_guests @ " +
                 f"average_squared_travel_distance = {round(average_squared_travel_distance, 3)} meters)")
 
