@@ -73,10 +73,10 @@ while True:
 	
   # Iterate through hosts that have free spots left
   for host_hub in hubs_with_free_spots:
-  	guests_which_want_this_hub = []
+    guests_which_want_this_hub = []
     
     # Determine which guests have this hosthub listed as their favorite one
-    guests_which_want_this_hub = list(filter(lambda x: x.favorite_host_hub() == 									host_hub, guests_without_hub))
+    guests_which_want_this_hub = list(filter(lambda x: x.favorite_host_hub() == host_hub, guests_without_hub))
     
     if len(guests_which_want_this_hub) <= host_hub.max_guests_left:
       # If there are enough spots for the guests that want this hub
@@ -84,12 +84,12 @@ while True:
     else:
       # If there are more guests that want this hub than spots left at this hub
       # (Take the closest ones possible)
-      guests_which_want_this_hub = list(sorted(guests_which_want_this_hub, 												key=lambda x: x.favorite_host_hub_distance()))
-      guests_to_be_assigned = 																																		guests_which_want_this_hub[0:host_hub.max_guests_left]
+      guests_which_want_this_hub = list(sorted(guests_which_want_this_hub, key=lambda x: x.favorite_host_hub_distance()))
+      guests_to_be_assigned = guests_which_want_this_hub[0:host_hub.max_guests_left]
 		
     # Assign all newly confirmed guests to this hub -> host_hub.guests_taken 	
     # AND host_hubs.max_guests_left BOTH get updated
-		host_hub.append_guests(guests_to_be_assigned)
+    host_hub.append_guests(guests_to_be_assigned)
 
 # Removing filled up hosts from each guests favorite_hos_hubs list -> Every Guest 
 # now has the closest host WITH free spots at the first spot of this list
@@ -130,7 +130,7 @@ round_number = 0
 average_travel_distance = 0
 
 while True:
-	matched_guests = list(filter(lambda x: x.assigned_to_hub, Guest.instances))
+  matched_guests = list(filter(lambda x: x.assigned_to_hub, Guest.instances))
   matched_guests = list(sorted(matched_guests, key=lambda x: x.distance_to_hub))
 
   
@@ -140,14 +140,13 @@ while True:
     new_average_travel_distance /= len(matched_guests)
 	
   # Determine all guests to be possibly rematched
-	guests_with_long_distances = list(
-    filter(lambda x: x.distance_to_hub > 1.5 * new_average_travel_distance, matched_guests))
-
+  guests_with_long_distances = list(filter(lambda x: x.distance_to_hub > 1.5 * new_average_travel_distance, matched_guests))
+  
   # At least 10 itearations
   # stop iterating, when optimization is not converging anymore
   # At most 100 iterations
-	if round_number > 10:
-		if round_number >= 100 or round(new_average_travel_distance, 6) == round(average_travel_distance, 6):
+  if round_number > 10:
+    if round_number >= 100 or round(new_average_travel_distance, 6) == round(average_travel_distance, 6):
       break
 	
   # Using two variables for the average distance so we can detect the rate of convergence between iterations
@@ -166,17 +165,18 @@ while True:
       continue
 
     for lucky_guest in matched_guests:
-			if unlucky_guest.hub == lucky_guest.hub or lucky_guest in switched_guests:
+      if unlucky_guest.hub == lucky_guest.hub or lucky_guest in switched_guests:
         continue
 			
       # Compare distances how they are and how they would be if
       # 'unlucky_guest' and 'lucky_guest' were to switch places
+      ...
 
       if (distance_before_switch - distance_after_switch) > saved_distance_when_switched:
       	switch_partner = lucky_guest
         saved_distance_when_switched = distance_before_switch - distance_after_switch
 
-		if switch_partner is not None:
+    if switch_partner is not None:
       # Actually switch spots
 
       # Prevent these two participants to take part in another switch this round
