@@ -7,8 +7,6 @@ import Database.queries as db_query
 
 from time import time
 
-import copy
-
 
 class HostHub:
     MAX_DISTANCE_BETWEEN_HOSTS = 500
@@ -59,8 +57,7 @@ class HostHub:
 
             CustomLogger.debug("Assigning guests to hosts:", data_dict={
                 "Host": str(host),
-                "Number of guests to append": len(guests_to_append),
-                "Guests to append": [str(x) for x in guests_to_append]
+                "Number of guests to append": len(guests_to_append)
             })
 
             host.append_guests(guests_to_append)
@@ -166,8 +163,6 @@ class OptimizerMoritz05(Optimizer):
             favorite_host_hubs = list(sorted(favorite_host_hubs, key=lambda x: x[1]))
             guest.favorite_host_hubs = favorite_host_hubs
 
-            # CustomLogger.debug("Guests favorite_host_hubs", data_dict={"favorite_host_hubs": [[str(x["hub"]), x["distance"]] for x in guest.favorite_host_hubs]})
-
 
     @staticmethod
     def distribute_guests():
@@ -178,11 +173,17 @@ class OptimizerMoritz05(Optimizer):
             guests_without_hub = list(filter(lambda x: not x.assigned_to_hub, Guest.instances))
             hubs_with_free_spots = list(filter(lambda x: not x.filled_up, HostHub.instances))
 
+            CustomLogger.debug(
+                f"Distributing Guests -> Round {round_number} ({len(guests_without_hub)} free guests and {len(hubs_with_free_spots)} free hosts)")
+
+            """
             CustomLogger.debug(f"Distributing Guests -> Round {round_number} ({len(guests_without_hub)} free guests and {len(hubs_with_free_spots)} free hosts)",
                                data_dict={
                                    "guests_without_hub": [str(x) for x in guests_without_hub],
                                    "hubs_with_free_spots": [str(x) for x in hubs_with_free_spots],
                                })
+            """
+
             round_number += 1
 
             if len(guests_without_hub) == 0 or len(hubs_with_free_spots) == 0:
@@ -198,6 +199,8 @@ class OptimizerMoritz05(Optimizer):
                                                              key=lambda x: x.favorite_host_hub_distance()))
                     guests_to_be_assigned = guests_which_want_this_hub[0:host_hub.max_guests_left]
 
+                """
+                
                 CustomLogger.debug(f"{str(host_hub)}:", data_dict={
                     "guests_which_want_this_hub": len(guests_which_want_this_hub),
                     "max_guests_left": int(host_hub.max_guests_left),
@@ -215,6 +218,10 @@ class OptimizerMoritz05(Optimizer):
                     "guests_taken": len(host_hub.guests_taken),
                     "max_guests_left": host_hub.max_guests_left
                 })
+                
+                """
+
+                host_hub.append_guests(guests_to_be_assigned)
 
             HostHub.update_hub_lists()
 
@@ -240,31 +247,43 @@ class OptimizerMoritz05(Optimizer):
             guests_with_short_distances = list(
                 filter(lambda x: x.distance_to_hub <= 3 * average_travel_distance, matched_guests))
 
-            print(f"{len(guests_with_short_distances)} short guests, {len(guests_with_long_distances)} long guests.")
-            print(f"Average travel distance = {new_average_travel_distance}\n")
+            if round_number == 0:
+                CustomLogger.info(f"Starting Brute-Force-Approach @ average_travel_distance = {round(new_average_travel_distance, 6)} meters")
 
             if round_number >= 100 or round(new_average_travel_distance, 6) == round(average_travel_distance, 6):
-                print(f"Stopped execution after iteration {round_number}.\n")
+                # If the maximum number of rounds is reached OR the optimization does not converge anymore
+                CustomLogger.info(f"Finished Brute-Force-Approach after round {round_number} @ average_travel_distance = {round(new_average_travel_distance, 6)} meters")
                 break
 
             average_travel_distance = new_average_travel_distance
-
             round_number += 1
+
+            CustomLogger.debug(
+                f"Switching Guests -> Round {round_number} ({len(guests_with_short_distances)} " +
+                f"short_routed_guests, {len(guests_with_long_distances)} long_routed_guests @ " +
+                f"average_travel_distance = {round(average_travel_distance, 6)} meters)")
 
             switched_guests = []
 
-            for unlucky_guest in guests_with_long_distances:
+            for unlucky_guest in guests_with_long_distances[::]:
                 # Determine the partner where the switch is best
                 saved_distance_when_switched = 0
                 switch_partner = None
 
                 if unlucky_guest in switched_guests:
+                    # Only try to switch participants that haven't been switched
+                    # in this round -> Super weird convergence without this
                     continue
 
                 for lucky_guest in matched_guests:
-                    # for lucky_guest in guests_with_short_distances:
+
                     if unlucky_guest.hub == lucky_guest.hub or lucky_guest in switched_guests:
+                        # Do not try to switch guests within one guest hub -> save power
+
+                        # Only try to switch participants that haven't been switched
+                        # in this round -> Super weird convergence without this
                         continue
+
                     distance_before_switch = unlucky_guest.distance_to_hub + lucky_guest.distance_to_hub
 
                     new_possible_distance_of_unlucky_guest = OptimizerMoritz05.zip_distances[unlucky_guest.zip_string][lucky_guest.hub.zip_string]
@@ -277,6 +296,7 @@ class OptimizerMoritz05(Optimizer):
 
                 if switch_partner is not None:
 
+                    # Prevent these two participants to take part in another switch this round
                     switched_guests.append(unlucky_guest)
                     switched_guests.append(switch_partner)
 
@@ -297,8 +317,6 @@ class OptimizerMoritz05(Optimizer):
                     switch_partner.hub.guests_taken.append(unlucky_guest)
                     switch_partner.hub = unlucky_hub
                     switch_partner.distance_to_hub = OptimizerMoritz05.zip_distances[switch_partner.zip_string][unlucky_guest.hub.zip_string]
-
-                    # matched_guests.remove(switch_partner)
 
 
 
