@@ -254,7 +254,10 @@ class OptimizerMoritz05(Optimizer):
             if round_number == 0:
                 CustomLogger.info(f"Starting Brute-Force-Approach @ average_travel_distance = {round(new_average_travel_distance, 6)} meters")
 
-            if round_number > 5:
+            # At least 10 itearations
+            # stop iterating, when optimization is not converging anymore
+            # At most 100 iterations
+            if round_number > 10:
                 if round_number >= 100 or round(new_average_travel_distance, 6) == round(average_travel_distance, 6):
                     # If the maximum number of rounds is reached OR the optimization does not converge anymore
                     CustomLogger.info(f"Finished Brute-Force-Approach after round {round_number} @ average_travel_distance = {round(new_average_travel_distance, 6)} meters")
