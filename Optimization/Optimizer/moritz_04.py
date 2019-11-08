@@ -2,13 +2,10 @@ from Optimization.Optimizer import Optimizer
 from Optimization.attendee import Host, Guest
 
 from Helpers.custom_logger import CustomLogger
-from Helpers.custom_printing import CustomPrinting
 
 import Database.queries as db_query
 
 from time import time
-import cProfile
-import copy
 
 
 class HostHub:

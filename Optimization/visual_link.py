@@ -13,16 +13,16 @@ logging.getLogger('pil').setLevel(logging.WARNING)
 
 
 def draw_image(source="Source/munich.png",
-               destination="Source/munich_out.png",
+               destination="Source/munich_out_04.png",
                min_lat=48.057483,
                max_lat=48.253319,
                min_lng=11.352409,
                max_lng=11.730366,
                size_multiplier=1):
     """
-            This function generates and saves and images based on
-            the current Host/Guest configuration.
-        """
+        This function generates and saves and images based on
+        the current Host/Guest configuration.
+    """
 
     # Static background image of munich on which is painted on
     img = Image.open(source)
@@ -155,23 +155,6 @@ def draw_image(source="Source/munich.png",
 def export_image():
     CustomLogger.info(f"#5 Generating Images ...")
     time1 = time()
-
-    # I downloaded a static image and evaluated the boundaries myself
-    source = "Source/munich.png"
-    destination = "Source/munich_out.png"
-    min_lat = 48.057483
-    max_lat = 48.253319
-    min_lng = 11.352409
-    max_lng = 11.730366
-    size_multiplier = 1
-
-    draw_image(source=source,
-               destination=destination,
-               min_lat=min_lat,
-               max_lat=max_lat,
-               min_lng=min_lng,
-               max_lng=max_lng,
-               size_multiplier=size_multiplier)
 
     # I downloaded a static image and evaluated the boundaries myself
     source = "Source/munich.png"

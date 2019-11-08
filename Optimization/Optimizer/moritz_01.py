@@ -2,7 +2,6 @@ from Optimization.Optimizer import Optimizer
 from Optimization.attendee import Host, Guest
 
 import Database.queries as db_query
-import Database.additions as db_addition
 
 class OptimizerMoritz01(Optimizer):
 

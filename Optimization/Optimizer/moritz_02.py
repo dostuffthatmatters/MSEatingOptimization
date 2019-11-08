@@ -5,7 +5,6 @@ from Optimization.attendee import Host, Guest
 from Helpers.custom_printing import CustomPrinting
 
 import Database.queries as db_query
-import Database.additions as db_addition
 
 class HostHub:
 
