@@ -28,6 +28,7 @@ def draw_image(source="Source/munich.png",
     img = Image.open(source)
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype("Source/Courier_New_Bold.ttf", round(20 * size_multiplier))
+    medium_font = ImageFont.truetype("Source/Courier_New_Bold.ttf", 30)
     big_font = ImageFont.truetype("Source/Courier_New_Bold.ttf", round(60 * size_multiplier))
 
     """
@@ -56,6 +57,20 @@ def draw_image(source="Source/munich.png",
     # (One host: "4", Two hosts: "4/5", ...)
     host_locations = {}
 
+    img_colors_legend_01 = (0, 215, 0)
+    img_colors_legend_12 = (155, 232, 0)
+    img_colors_legend_23 = (255, 213, 0)
+    img_colors_legend_34 = (255, 149, 0)
+    img_colors_legend_45 = (255, 106, 0)
+    img_colors_legend_5p = (255, 0, 0)
+
+    line_colors = [img_colors_legend_01,
+                   img_colors_legend_12,
+                   img_colors_legend_23,
+                   img_colors_legend_34,
+                   img_colors_legend_45,
+                   img_colors_legend_5p]
+
     # Determine all host dots (blue) and draw all lines between
     # hosts and guests
     for host in Host.instances:
@@ -74,7 +89,9 @@ def draw_image(source="Source/munich.png",
         for guest in host.guests:
             x_guest = round(width * (guest.lng - min_lng) / (max_lng - min_lng))
             y_guest = height - round(height * (guest.lat - min_lat) / (max_lat - min_lat))
-            draw.line((x_host, y_host, x_guest, y_guest), fill=(50, 50, 50), width=line_width)
+            distance_category_index = round((guest.distance_to_hub / 1000.0) - 0.499999)
+            distance_category_index = 5 if distance_category_index > 5 else distance_category_index
+            draw.line((x_host, y_host, x_guest, y_guest), fill=line_colors[distance_category_index], width=line_width)
 
             # Updating the number of dots at this (x, y)-image-coordinate
             if x_guest not in dot_locations:
@@ -148,12 +165,52 @@ def draw_image(source="Source/munich.png",
             text = host_locations[x][y]
             draw.text((x - (len(text) * 6 * size_multiplier), y - (10 * size_multiplier)), text, font=font, fill=(255, 100, 100))
 
+    # Counting the number of times each distance category exists
+    # Categories: 0-1km, 1-2km, 2-3km, 3-4km, 4-5km, 5+km
+    distance_categories_count = [0, 0, 0, 0, 0, 0]
 
     matched_guests = list(filter(lambda x: x.assigned_to_hub, Guest.instances))
     average_travel_distance = 0
     for guest in matched_guests:
         average_travel_distance += guest.distance_to_hub
+        distance_category_index = round((guest.distance_to_hub / 1000.0) - 0.499999)
+        distance_category_index = 5 if distance_category_index > 5 else distance_category_index
+        distance_categories_count[distance_category_index] += 1
+
     average_travel_distance /= len(matched_guests)
+
+
+    draw.text((20, 20), f"Average Travel Distance = {round(average_travel_distance,2)} meters", font=big_font, fill=(200, 0, 0))
+
+    img_coords_rect_box = (20, height-20, 700, height-(6*80)-20-10)
+    img_coords_legend_rect_01 = (35, height-35, 95, height-95)
+    img_coords_legend_rect_12 = (35, height-115, 95, height-175)
+    img_coords_legend_rect_23 = (35, height-195, 95, height-255)
+    img_coords_legend_rect_34 = (35, height-275, 95, height-335)
+    img_coords_legend_rect_45 = (35, height-355, 95, height-415)
+    img_coords_legend_rect_5p = (35, height-435, 95, height-495)
+
+    img_coords_legend_text_01 = (110, height - 80)
+    img_coords_legend_text_12 = (110, height - 160)
+    img_coords_legend_text_23 = (110, height - 240)
+    img_coords_legend_text_34 = (110, height - 320)
+    img_coords_legend_text_45 = (110, height - 400)
+    img_coords_legend_text_5p = (110, height - 480)
+
+    draw.rectangle(img_coords_rect_box, fill=(255, 255, 255))
+    draw.rectangle(img_coords_legend_rect_01, fill=img_colors_legend_01)
+    draw.rectangle(img_coords_legend_rect_12, fill=img_colors_legend_12)
+    draw.rectangle(img_coords_legend_rect_23, fill=img_colors_legend_23)
+    draw.rectangle(img_coords_legend_rect_34, fill=img_colors_legend_34)
+    draw.rectangle(img_coords_legend_rect_45, fill=img_colors_legend_45)
+    draw.rectangle(img_coords_legend_rect_5p, fill=img_colors_legend_5p)
+
+    draw.text(img_coords_legend_text_01, f"      < 1.000 m -> {distance_categories_count[0]} Guests", font=medium_font, fill=img_colors_legend_01)
+    draw.text(img_coords_legend_text_12, f"1.000 - 2.000 m -> {distance_categories_count[1]} Guests", font=medium_font, fill=img_colors_legend_12)
+    draw.text(img_coords_legend_text_23, f"2.000 - 3.000 m -> {distance_categories_count[2]} Guests", font=medium_font, fill=img_colors_legend_23)
+    draw.text(img_coords_legend_text_34, f"3.000 - 4.000 m -> {distance_categories_count[3]} Guests", font=medium_font, fill=img_colors_legend_34)
+    draw.text(img_coords_legend_text_45, f"4.000 - 5.000 m -> {distance_categories_count[4]} Guests", font=medium_font, fill=img_colors_legend_45)
+    draw.text(img_coords_legend_text_5p, f"5.000 <         -> {distance_categories_count[5]} Guests", font=medium_font, fill=img_colors_legend_5p)
 
     draw.text((20, 20), f"Average Travel Distance = {round(average_travel_distance,2)} meters", font=big_font, fill=(200, 0, 0))
 
@@ -192,6 +249,7 @@ def export_image():
     max_lng = 11.730366
     size_multiplier = 1.5
 
+    # """
     draw_image(source=source,
                destination=destination,
                min_lat=min_lat,
@@ -199,5 +257,6 @@ def export_image():
                min_lng=min_lng,
                max_lng=max_lng,
                size_multiplier=size_multiplier)
+    # """
 
     CustomLogger.info(f"#5 Generating Images: Done ({round(time() - time1, 6)} seconds).")
