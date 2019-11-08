@@ -134,6 +134,10 @@ class OptimizerMoritz05(Optimizer):
         HostHub.export_hubs()
         CustomLogger.info(f"#3.5 Exporting HostHubs: Done ({round(time() - time1, 6)} seconds).")
 
+        for guest in list(filter(lambda x: x.assigned_to_hub, Guest.instances)):
+            distance = OptimizerMoritz05.zip_distances[guest.zip_string][guest.host.zip_string]
+            guest.distance_to_hub = distance
+
 
     @staticmethod
     def get_zip_distance(zip_string_1, zip_string_2):
@@ -243,17 +247,18 @@ class OptimizerMoritz05(Optimizer):
             new_average_travel_distance /= len(matched_guests)
 
             guests_with_long_distances = list(
-                filter(lambda x: x.distance_to_hub > 3 * average_travel_distance, matched_guests))
+                filter(lambda x: x.distance_to_hub > 1.5 * average_travel_distance, matched_guests))
             guests_with_short_distances = list(
-                filter(lambda x: x.distance_to_hub <= 3 * average_travel_distance, matched_guests))
+                filter(lambda x: x.distance_to_hub <= 1.5 * average_travel_distance, matched_guests))
 
             if round_number == 0:
                 CustomLogger.info(f"Starting Brute-Force-Approach @ average_travel_distance = {round(new_average_travel_distance, 6)} meters")
 
-            if round_number >= 100 or round(new_average_travel_distance, 6) == round(average_travel_distance, 6):
-                # If the maximum number of rounds is reached OR the optimization does not converge anymore
-                CustomLogger.info(f"Finished Brute-Force-Approach after round {round_number} @ average_travel_distance = {round(new_average_travel_distance, 6)} meters")
-                break
+            if round_number > 5:
+                if round_number >= 100 or round(new_average_travel_distance, 6) == round(average_travel_distance, 6):
+                    # If the maximum number of rounds is reached OR the optimization does not converge anymore
+                    CustomLogger.info(f"Finished Brute-Force-Approach after round {round_number} @ average_travel_distance = {round(new_average_travel_distance, 6)} meters")
+                    break
 
             average_travel_distance = new_average_travel_distance
             round_number += 1
@@ -290,33 +295,29 @@ class OptimizerMoritz05(Optimizer):
                     new_possible_distance_of_lucky_guest = OptimizerMoritz05.zip_distances[lucky_guest.zip_string][unlucky_guest.hub.zip_string]
                     distance_after_switch = new_possible_distance_of_unlucky_guest + new_possible_distance_of_lucky_guest
 
-                    if saved_distance_when_switched < (distance_before_switch - distance_after_switch):
+                    if (distance_before_switch - distance_after_switch) > saved_distance_when_switched:
                         switch_partner = lucky_guest
                         saved_distance_when_switched = distance_before_switch - distance_after_switch
 
                 if switch_partner is not None:
+                    # Actually switch spots
 
                     # Prevent these two participants to take part in another switch this round
                     switched_guests.append(unlucky_guest)
                     switched_guests.append(switch_partner)
 
-                    # Actually switch spots
-                    unlucky_guest.hub.guests_taken.remove(unlucky_guest)
-                    unlucky_guest.hub.guests_taken.append(switch_partner)
+                    # Change each guest's hub reference
+                    unlucky_guest.hub, switch_partner.hub = switch_partner.hub, unlucky_guest.hub
 
-                    # Important: No deepcopy! I think that is because an object is not passed as
-                    # a pointer as you would intuitively think so. When I'd use deepcopy i would
-                    # create another whole hub instead of making sure that unlucky_hub does not
-                    # change with unlucky_guest.hub
-                    unlucky_hub = unlucky_guest.hub
+                    # Changes each guest's hub's guest list
+                    unlucky_guest.hub.guests_taken.remove(switch_partner)
+                    unlucky_guest.hub.guests_taken.append(unlucky_guest)
+                    switch_partner.hub.guests_taken.remove(unlucky_guest)
+                    switch_partner.hub.guests_taken.append(switch_partner)
 
-                    unlucky_guest.hub = switch_partner.hub
-                    unlucky_guest.distance_to_hub = OptimizerMoritz05.zip_distances[unlucky_guest.zip_string][switch_partner.hub.zip_string]
-
-                    switch_partner.hub.guests_taken.remove(switch_partner)
-                    switch_partner.hub.guests_taken.append(unlucky_guest)
-                    switch_partner.hub = unlucky_hub
-                    switch_partner.distance_to_hub = OptimizerMoritz05.zip_distances[switch_partner.zip_string][unlucky_guest.hub.zip_string]
+                    # Change each guest's distance_to_hub value
+                    unlucky_guest.distance_to_hub = OptimizerMoritz05.zip_distances[unlucky_guest.zip_string][unlucky_guest.hub.zip_string]
+                    switch_partner.distance_to_hub = OptimizerMoritz05.zip_distances[switch_partner.zip_string][switch_partner.hub.zip_string]
 
 
 
