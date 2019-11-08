@@ -1,8 +1,10 @@
-## /Optimizer Class
+## Optimizer Class
 
-The only requirements for an optimizer are to determine each `Host`-instance’s variable `<host>.guests` and each `Guest`-instance’s variable `<guest>.host`.
+The only requirements for an optimizer are to determine each hosts variable `<host_instance>.guests` and each guests variable `<guest_instance>.host`.
 
 Your optimizer has to inherit from the abstract base class found in `__init__.py` and has to implement the static method `<Optimizer>.optimize()`.
+
+In addition to that, if you want to use the image-export-functionality the optimizer has to assign each guest the values for `<guest_instance>.distance_to_hub` (the distance between him and his host).
 
 
 
@@ -13,33 +15,34 @@ All green dots represent guests which are assigned to a host. All Red dots repre
 All blue dots represent hosts. The numbers above each (group of) hosts indicate the number of guests each host is assigned with.
 
 With this image you can actually see the optimization and also:
-* See if there are definitely more hosts needed in a specific area (ask specific guests to be hosts)
+* See if there are not enough hosts in a specific area (Ask specific guests to be hosts)
 * See if there are too many hosts in a specific area (Manually switch specific hosts to guests)
 
 
+
 ## What are HostHubs?
-
-
 
 When a few hosts are located right next to each other (here: max. 500 meters apart) then it makes sense to combine these hosts in order to save computing power and get a better optimization in the same amount of time.
 
 Each HostHub has a specific set of hosts which therefore determine each hubs `max_guests` count.
 
+For simplicity I will just store one zip-code for each HostHub because nearly every HostHub only consists of hosts in one zip-code-region.
 
 
-## Ideas for Optimizer Moritz_01 (not to be used)
+
+## Ideas for `OptimizerMoritz01` (not to be used - build-up-process)
 
 Every Guest gets assigned it closest Host (Just as a starting point).
 
 
 
-## Ideas for Optimizer Moritz_02 (not to be used)
+## Ideas for `OptimizerMoritz02` (not to be used - build-up-process)
 
 Introduction of Host Hubs. Every Host gets assigned as many guests as possible without assigning more than its max. allowed guests starting with the closest guest. 
 
 
 
-## Ideas for Optimizer Moritz_03
+## Ideas for `OptimizerMoritz03`
 
 1. Equal distribution of guests among hosts in a host hub!
 2. For each guest, determine a list of all host hubs sorted by their distance to that guest:
@@ -52,10 +55,7 @@ guest_instance.favorite_host_hubs = [
 ]
 ```
 
-
-
 Each host hub has a variable `guests_taken` (array) where all guests that are confirmed to be with that host hub are stored and a second variable `max_guests_left` which stores how many guests can still be assigned at most.
-
 
 
 This is the **Core-Optimization**:
@@ -99,7 +99,7 @@ HostHub.update_hub_lists()
 
 
 
-## Ideas for Optimizer Moritz_04 (efficiency!)
+## Ideas for `OptimizerMoritz04` (efficiency!)
 
 The whole goal of this build is to increase efficiency of the optimization! It is mainly about two things:
 
@@ -114,12 +114,14 @@ The whole goal of this build is to increase efficiency of the optimization! It i
 
 
 
-## Ideas for Optimizer Moritz_05
+## Ideas for `OptimizerMoritz05`
 
 1. Fully distribute the guests according to Optimizer Moritz_03/Moritz_04
 2. Iterate through the longest routes (e.g. longer than 50% of the average distance):
     1. Is there a guest with whom I can switch hosts so that the overall travelled distance of the two of us is reduced
 
+**Important:** This Brute-Forcing does not switch places between guests who do have a spot and guests who do not have a spot. 
+**The reason for that decision** is that I want to handle the selection of people who get a spot (probably meaning they were first to the sign up) inside the first distribution of guests (optimizer v3/v4).
 
 
 This is the **Core-Optimization**:
@@ -199,11 +201,9 @@ while True:
 ```
 
 
-
 Here is the optimized distribution **before** this brute-force approach:
 
 ![](45_comparison/brute_forcing_fine_trim_04.png)
-
 
 
 Here is the optimized distribution **after** this brute-force approach:
@@ -212,18 +212,14 @@ Here is the optimized distribution **after** this brute-force approach:
 
 
 
-## Ideas for Optimizer Moritz_06
+## Ideas for `OptimizerMoritz06`
 
-The thing is, the quality-measurement that is used most in optimization/approximation problems is the squared error (squared travelled distance) instead of the linear error.
-
-So I used the squard travelled distance in the Optimizer v6:
-
+The thing is, the quality-measurement that is used most in optimization/approximation problems is the squared error (squared travelled distance) instead of the linear error. So I used the squared travelled distance in the Optimizer v6.
 
 
 Here is the optimized distribution the brute-forcing with **minimized *linear* travel distance**:
 
 ![](56_comparison/linear_error.png)
-
 
 
 Here is the optimized distribution the brute-forcing with **minimized *squared* travel distance**:
