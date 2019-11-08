@@ -5,7 +5,7 @@ import smtplib
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from secrets import OUTLOOK_CREDENTIALS_USER, OUTLOOK_CREDENTIALS_PASS, OUTLOOK_FROM_EMAIL, OUTLOOK_TO_EMAIL
+from secrets import OUTLOOK_CREDENTIALS_USER, OUTLOOK_CREDENTIALS_PASS, OUTLOOK_FROM_EMAIL, OUTLOOK_TO_EMAIL, MSE_EMERGENCY_PHONE_NUMBER
 
 
 def get_message_batch_1_guest(name="<insert_name_here>"):
@@ -40,8 +40,8 @@ def get_message_batch_2_guest(name="<insert_name_here>", address="", phone_numbe
               "\n\n" \
               "Dein MSEating Team" \
               "\n\n" \
-              f"PS: wenn du Probleme haben solltest, kannst du deinen Gastgeber hier erreichen: " \
-              f"<strong>{phone_number}</strong>\n" \
+              f"PS: Falls du Probleme haben solltest, kannst du uns gerne anrufen: {MSE_EMERGENCY_PHONE_NUMBER}" \
+              "\n"\
               "(und denk daran: es gibt auch Googlemaps  & die  MVG-App ;P)"
     return message
 
@@ -113,11 +113,11 @@ def get_message_batch_2_host(name="<insert_name_here>", guests=[]):
               "für dich, damit die Spannung nicht verloren geht!) :\n" \
               f"{guest_contacts}" \
               f"\n" \
-              "Falls du Probleme haben solltest, kannst du uns gerne anrufen: ##hier_nummer_von_mse##" \
-              "\n\n" \
               "Dein MSEating-Team" \
               "\n\n" \
-              "PS: Wenn du das Geld noch nicht abgeholt hast, hole dies bitte so schnell wie möglich " \
+              f"PS: Falls du Probleme haben solltest, kannst du uns gerne anrufen: {MSE_EMERGENCY_PHONE_NUMBER}" \
+              "\n" \
+              "\nWenn du das Geld noch nicht abgeholt hast, hole dies bitte so schnell wie möglich " \
               "nach! Oder willst du dir etwa die 7€ pro Teilnehmer entgehen lassen? ;) " \
 
     return message

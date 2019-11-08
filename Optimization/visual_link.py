@@ -28,6 +28,7 @@ def draw_image(source="Source/munich.png",
     img = Image.open(source)
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype("Source/Courier_New_Bold.ttf", round(20 * size_multiplier))
+    big_font = ImageFont.truetype("Source/Courier_New_Bold.ttf", round(60 * size_multiplier))
 
     """
     # Dimensions of the images
@@ -145,7 +146,16 @@ def draw_image(source="Source/munich.png",
         # Draw the number of guests at each HostHub
         if dot_locations[x][y] == 0:
             text = host_locations[x][y]
-            draw.text((x - (len(text) * 6), y - 10), text, font=font, fill=(255, 100, 100))
+            draw.text((x - (len(text) * 6), y - (10 * size_multiplier)), text, font=font, fill=(255, 100, 100))
+
+
+    matched_guests = list(filter(lambda x: x.assigned_to_hub, Guest.instances))
+    average_travel_distance = 0
+    for guest in matched_guests:
+        average_travel_distance += guest.distance_to_hub
+    average_travel_distance /= len(matched_guests)
+
+    draw.text((20, 20), f"Average Distance = {average_travel_distance}", font=big_font, fill=(200, 0, 0))
 
     img.save(destination)
 
@@ -164,6 +174,23 @@ def export_image():
     min_lng = 11.352409
     max_lng = 11.730366
     size_multiplier = 1
+
+    draw_image(source=source,
+               destination=destination,
+               min_lat=min_lat,
+               max_lat=max_lat,
+               min_lng=min_lng,
+               max_lng=max_lng,
+               size_multiplier=size_multiplier)
+
+    # I downloaded a static image and evaluated the boundaries myself
+    source = "Source/munich_large.png"
+    destination = "Source/munich_large_out.png"
+    min_lat = 48.057483
+    max_lat = 48.253319
+    min_lng = 11.352409
+    max_lng = 11.730366
+    size_multiplier = 1.5
 
     draw_image(source=source,
                destination=destination,
