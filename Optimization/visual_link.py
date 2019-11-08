@@ -13,7 +13,7 @@ logging.getLogger('pil').setLevel(logging.WARNING)
 
 
 def draw_image(source="Source/munich.png",
-               destination="Source/munich_out_04.png",
+               destination="Source/munich_out.png",
                min_lat=48.057483,
                max_lat=48.253319,
                min_lng=11.352409,
