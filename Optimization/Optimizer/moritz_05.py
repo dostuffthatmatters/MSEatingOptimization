@@ -250,7 +250,10 @@ class OptimizerMoritz05(Optimizer):
                 saved_distance_when_switched = 0
                 switch_partner = None
 
-                for lucky_guest in guests_with_short_distances:
+                for lucky_guest in matched_guests:
+                    # for lucky_guest in guests_with_short_distances:
+                    if unlucky_guest.hub == lucky_guest.hub:
+                        continue
                     distance_before_switch = unlucky_guest.distance_to_hub + lucky_guest.distance_to_hub
 
                     new_possible_distance_of_unlucky_guest = OptimizerMoritz05.zip_distances[unlucky_guest.zip_string][lucky_guest.hub.zip_string]
@@ -262,10 +265,17 @@ class OptimizerMoritz05(Optimizer):
                         saved_distance_when_switched = distance_before_switch - distance_after_switch
 
                 if switch_partner is not None:
+
                     # Actually switch spots
                     unlucky_guest.hub.guests_taken.remove(unlucky_guest)
                     unlucky_guest.hub.guests_taken.append(switch_partner)
-                    unlucky_hub = copy.deepcopy(unlucky_guest.hub)
+
+                    # Important: No deepcopy! I think that is because an object is not passed as
+                    # a pointer as you would intuitively think so. When I'd use deepcopy i would
+                    # create another whole hub instead of making sure that unlucky_hub does not
+                    # change with unlucky_guest.hub
+                    unlucky_hub = unlucky_guest.hub
+
                     unlucky_guest.hub = switch_partner.hub
                     unlucky_guest.distance_to_hub = OptimizerMoritz05.zip_distances[unlucky_guest.zip_string][switch_partner.hub.zip_string]
 
@@ -273,6 +283,8 @@ class OptimizerMoritz05(Optimizer):
                     switch_partner.hub.guests_taken.append(unlucky_guest)
                     switch_partner.hub = unlucky_hub
                     switch_partner.distance_to_hub = OptimizerMoritz05.zip_distances[switch_partner.zip_string][unlucky_guest.hub.zip_string]
+
+                    matched_guests.remove(switch_partner)
 
 
 
