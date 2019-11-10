@@ -89,7 +89,7 @@ def draw_image(source="Source/Images/munich.png",
         for guest in host.guests:
             x_guest = round(width * (guest.lng - min_lng) / (max_lng - min_lng))
             y_guest = height - round(height * (guest.lat - min_lat) / (max_lat - min_lat))
-            distance_category_index = round((guest.distance_to_hub / 2000.0) - 0.499999)
+            distance_category_index = round((guest.distance_to_hub / 1000.0) - 0.499999)
             distance_category_index = 5 if distance_category_index > 5 else distance_category_index
             draw.line((x_host, y_host, x_guest, y_guest), fill=line_colors[distance_category_index], width=line_width)
 
@@ -166,7 +166,7 @@ def draw_image(source="Source/Images/munich.png",
             draw.text((x - (len(text) * 6 * size_multiplier), y - (10 * size_multiplier)), text, font=font, fill=(255, 100, 100))
 
     # Counting the number of times each distance category exists
-    # Categories: 0-2km, 2-4km, 4-6km, 6-8km, 8-10km, 10+km
+    # Categories: 0-1km, 1-2km, 2-3km, 3-4km, 4-5km, 5+km
     distance_categories_count = [0, 0, 0, 0, 0, 0]
 
     matched_guests = list(filter(lambda x: x.host is not None, Guest.instances))
@@ -175,7 +175,7 @@ def draw_image(source="Source/Images/munich.png",
     for guest in matched_guests:
         average_travel_distance += guest.distance_to_hub
         average_squared_travel_distance += pow(guest.distance_to_hub, 2)
-        distance_category_index = round((guest.distance_to_hub / 2000.0) - 0.499999)
+        distance_category_index = round((guest.distance_to_hub / 1000.0) - 0.499999)
         distance_category_index = 5 if distance_category_index > 5 else distance_category_index
         distance_categories_count[distance_category_index] += 1
 
@@ -208,12 +208,12 @@ def draw_image(source="Source/Images/munich.png",
     draw.rectangle(img_coords_legend_rect_45, fill=img_colors_legend_45)
     draw.rectangle(img_coords_legend_rect_5p, fill=img_colors_legend_5p)
 
-    draw.text(img_coords_legend_text_01, f"         <  2.000 m -> {distance_categories_count[0]} Guests", font=medium_font, fill=img_colors_legend_01)
-    draw.text(img_coords_legend_text_12, f" 2.000 m -  4.000 m -> {distance_categories_count[1]} Guests", font=medium_font, fill=img_colors_legend_12)
-    draw.text(img_coords_legend_text_23, f" 4.000 m -  6.000 m -> {distance_categories_count[2]} Guests", font=medium_font, fill=img_colors_legend_23)
-    draw.text(img_coords_legend_text_34, f" 6.000 m -  8.000 m -> {distance_categories_count[3]} Guests", font=medium_font, fill=img_colors_legend_34)
-    draw.text(img_coords_legend_text_45, f" 8.000 m - 10.000 m -> {distance_categories_count[4]} Guests", font=medium_font, fill=img_colors_legend_45)
-    draw.text(img_coords_legend_text_5p, f"10.000 m <         -> {distance_categories_count[5]} Guests", font=medium_font, fill=img_colors_legend_5p)
+    draw.text(img_coords_legend_text_01, f"         < 1.000 m -> {distance_categories_count[0]} Guests", font=medium_font, fill=img_colors_legend_01)
+    draw.text(img_coords_legend_text_12, f"1.000 m - 2.000 m -> {distance_categories_count[1]} Guests", font=medium_font, fill=img_colors_legend_12)
+    draw.text(img_coords_legend_text_23, f"2.000 m - 3.000 m -> {distance_categories_count[2]} Guests", font=medium_font, fill=img_colors_legend_23)
+    draw.text(img_coords_legend_text_34, f"3.000 m - 4.000 m -> {distance_categories_count[3]} Guests", font=medium_font, fill=img_colors_legend_34)
+    draw.text(img_coords_legend_text_45, f"4.000 m - 5.000 m -> {distance_categories_count[4]} Guests", font=medium_font, fill=img_colors_legend_45)
+    draw.text(img_coords_legend_text_5p, f"5.000 m <         -> {distance_categories_count[5]} Guests", font=medium_font, fill=img_colors_legend_5p)
 
     draw.text((20, 20), f"Average Travel Distance = {round(average_travel_distance,2)} meters", font=big_font, fill=(200, 0, 0))
     draw.text((20, 100), f"Root Mean Squared Travel Distance = {round(average_squared_travel_distance,2)} meters", font=big_font, fill=(200, 0, 0))
@@ -226,8 +226,6 @@ def draw_image(source="Source/Images/munich.png",
 def export_image():
     CustomLogger.info(f"#5 Generating Images ...")
     time1 = time()
-
-    """
 
     # I downloaded a static image and evaluated the boundaries myself
     source = "Source/Images/munich.png"
@@ -246,6 +244,24 @@ def export_image():
                max_lng=max_lng,
                size_multiplier=size_multiplier)
 
+
+    source = "Source/Images/munich_large.png"
+    destination = "Source/Images/munich_large_out.png"
+    min_lat = 48.057483
+    max_lat = 48.253319
+    min_lng = 11.352409
+    max_lng = 11.730366
+    size_multiplier = 1
+
+    draw_image(source=source,
+               destination=destination,
+               min_lat=min_lat,
+               max_lat=max_lat,
+               min_lng=min_lng,
+               max_lng=max_lng,
+               size_multiplier=size_multiplier)
+
+    """
 
     source = "Source/Images/google_maps_muc_zentrum.png"
     destination = "Source/Images/google_maps_muc_zentrum_out.png"
@@ -311,7 +327,7 @@ def export_image():
                max_lng=max_lng,
                size_multiplier=size_multiplier)
     
-    """
+    
 
     source = "Source/Images/munich_panorama_huge.png"
     destination = "Source/Images/munich_panorama_out.png"
@@ -329,5 +345,6 @@ def export_image():
                max_lng=max_lng,
                size_multiplier=size_multiplier)
 
+    """
 
     CustomLogger.info(f"#5 Generating Images: Done ({round(time() - time1, 6)} seconds).")

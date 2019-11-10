@@ -67,17 +67,7 @@ class HostHub:
                 host.append_guests(guests_to_append)
                 guest_index += 4
 
-        print("\n" + "-"*40 + "\n")
-
-        print(f"Guests: {len(self.guests_taken)}, Hosts: {len(self.hosts)}")
-
-        print(f"Guest index after intial distribution: {guest_index}")
-
-        while len(self.guests_taken) > (guest_index):
-
-            print(f"\nhost index {host_index}, "
-                  f"max_guests {self.hosts[host_index].max_guests}, "
-                  f"assigned guests {len(self.hosts[host_index].guests)}")
+        while len(self.guests_taken) > guest_index:
 
             if self.hosts[host_index].max_guests <= len(self.hosts[host_index].guests):
                 host_index = (host_index + 1) % len(self.hosts)
@@ -89,7 +79,6 @@ class HostHub:
             guest_index += 1
             host_index = (host_index + 1) % len(self.hosts)
 
-        print(f"Guest index after full distribution: {guest_index}")
 
     def __repr__(self):
         return f"HostHub(Zip String: {self.zip_string}, Hosts: {len(self.hosts)}, Guests: {len(self.guests_taken)}, MaxGuests: {self.max_guests_left})"

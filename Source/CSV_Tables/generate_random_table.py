@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     rows = [["Region", "Host", "Allergies", "Max Guests", "Vorname", "Nachname", "Straße und Hausnummer", "Postleitzahl und Ort", "TUM Mail", "Handynummer", "Semester", "Einwilligung in Daten-Weitergabe"]]
 
-    for i in range(400):
+    for i in range(500):
         host = "Ja" if random.randint(1, 5) == 1 else "Nein"
         zip_code = random.choice(ZIP_CODES)
         row = ["Innenstadt", host, "<allergies>", "<max_guests>", "<vorname>", "<nachname>", "Straße 4", f"{zip_code} München", "<mail_address>", "<phone_number>", "<semester>", "Ja"]
