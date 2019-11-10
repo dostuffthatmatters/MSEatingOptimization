@@ -12,8 +12,8 @@ logging.getLogger('PIL').setLevel(logging.WARNING)
 logging.getLogger('pil').setLevel(logging.WARNING)
 
 
-def draw_image(source="Source/munich.png",
-               destination="Source/munich_out.png",
+def draw_image(source="Source/Images/munich.png",
+               destination="Source/Images/munich_out.png",
                min_lat=48.057483,
                max_lat=48.253319,
                min_lng=11.352409,
@@ -27,9 +27,9 @@ def draw_image(source="Source/munich.png",
     # Static background image of munich on which is painted on
     img = Image.open(source)
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype("Source/Courier_New_Bold.ttf", round(20 * size_multiplier))
-    medium_font = ImageFont.truetype("Source/Courier_New_Bold.ttf", 30)
-    big_font = ImageFont.truetype("Source/Courier_New_Bold.ttf", round(60 * size_multiplier))
+    font = ImageFont.truetype("Source/Images/Courier_New_Bold.ttf", round(20 * size_multiplier))
+    medium_font = ImageFont.truetype("Source/Images/Courier_New_Bold.ttf", 30)
+    big_font = ImageFont.truetype("Source/Images/Courier_New_Bold.ttf", round(60 * size_multiplier))
 
     """
     # Dimensions of the images
@@ -228,8 +228,8 @@ def export_image():
     time1 = time()
 
     # I downloaded a static image and evaluated the boundaries myself
-    source = "Source/munich.png"
-    destination = "Source/munich_out.png"
+    source = "Source/Images/munich.png"
+    destination = "Source/Images/munich_out.png"
     min_lat = 48.057483
     max_lat = 48.253319
     min_lng = 11.352409
@@ -244,16 +244,15 @@ def export_image():
                max_lng=max_lng,
                size_multiplier=size_multiplier)
 
-    # I downloaded a static image and evaluated the boundaries myself
-    source = "Source/munich_large.png"
-    destination = "Source/munich_large_out.png"
+    """
+    source = "Source/Images/munich_large.png"
+    destination = "Source/Images/munich_large_out.png"
     min_lat = 48.057483
     max_lat = 48.253319
     min_lng = 11.352409
     max_lng = 11.730366
     size_multiplier = 1.5
-
-    """
+    
     draw_image(source=source,
                destination=destination,
                min_lat=min_lat,
