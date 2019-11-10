@@ -10,7 +10,8 @@ out.csv
 out.png
 *out.png
 in.csv
-
+mails.txt
+mails.md
 
 
 # Django stuff:

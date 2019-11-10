@@ -5,7 +5,9 @@ import smtplib
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from secrets import OUTLOOK_CREDENTIALS_USER, OUTLOOK_CREDENTIALS_PASS, OUTLOOK_FROM_EMAIL, OUTLOOK_TO_EMAIL, MSE_EMERGENCY_PHONE_NUMBERS
+from secrets import OUTLOOK_CREDENTIALS_USER, OUTLOOK_CREDENTIALS_PASS,\
+    OUTLOOK_FROM_EMAIL, OUTLOOK_TO_EMAIL, OUTLOOK_REPLY_TO_ADDRESS,\
+    MSE_EMERGENCY_PHONE_NUMBERS, SMTP_SERVER, SMTP_PORT
 
 
 def get_message_batch_1_guest(name="<insert_name_here>"):
@@ -14,7 +16,7 @@ def get_message_batch_1_guest(name="<insert_name_here>"):
               "\n\n" \
               "auf dich wartet ein super entspannter Abend mit deinen Kommilitonen!" \
               "\n\n" \
-              "Das Beste daran ist, du musst nichts weiter tun, als dir den 12.11.um " \
+              "Das Beste daran ist, du musst nichts weiter tun, als dir den 12.11. um " \
               "18:30 Uhr in deinen Kalender einzutragen." \
               "\n\n" \
               "Doch welche Leute in deiner Gruppe sind, halten wir bis zum Ende geheim, " \
@@ -29,8 +31,8 @@ def get_message_batch_2_guest(name="<insert_name_here>", address="", phone_numbe
     name = name.split(" ")[0]
 
     emergency_list = ""
-    for name in MSE_EMERGENCY_PHONE_NUMBERS:
-        emergency_list += "\n\t* " + name + ": " + MSE_EMERGENCY_PHONE_NUMBERS[name]
+    for emergency_name in MSE_EMERGENCY_PHONE_NUMBERS:
+        emergency_list += "\n\t* " + emergency_name + ": " + MSE_EMERGENCY_PHONE_NUMBERS[emergency_name]
 
     message = f"Servus {name}," \
               "\n\n" \
@@ -38,7 +40,7 @@ def get_message_batch_2_guest(name="<insert_name_here>", address="", phone_numbe
               "wo du den Abend verbringen wirst, hier die Adresse von deinem Chefkoch-Gastgeber:\n" \
               f"<strong>{address}</strong>" \
               "\n\n" \
-              "Also erscheine morgen pünktlich um 18:00 vor ihrer/seiner Haustür. An der Klingel " \
+              "Also erscheine morgen pünktlich um 18:30 vor ihrer/seiner Haustür. An der Klingel " \
               "wird ein MSEating Schild hängen." \
               "\n\n" \
               "Viel Spaß bei der Suche!!" \
@@ -80,9 +82,9 @@ def get_message_batch_1_host(name="<insert_name_here>", number_of_guests=0, food
               "Fachschaftsraum abholen." \
               "\n\n" \
               "Was du dann letztendlich machst - also was du kochen willst - kannst " \
-              "du ganz allein entscheiden. Dabei kann <a href='https://www.google.de'>Google</a>," \
-              "<a href='https://www.chefkoch.de/'>Chefkoch</a> oder " \
-              "<a href='https://www.youtube.com/user/donalskehan'>Youtube</a> eine große Hilfe sein." \
+              "du ganz allein entscheiden. Dabei kann <a href='https://www.google.de'>Google</a>, " \
+              "<a href='https://www.chefkoch.de/'>Chefkoch.de</a> oder " \
+              "<a href='https://www.youtube.com/user/donalskehan'>Youtube</a> eine große Hilfe sein. " \
               "Oder du kochst einfach dein Lieblingsgericht!" \
               "\n\n" \
               f"{food_requirements_string}" \
@@ -99,8 +101,8 @@ def get_message_batch_2_host(name="<insert_name_here>", guests=[]):
     name = name.split(" ")[0]
 
     emergency_list = ""
-    for name in MSE_EMERGENCY_PHONE_NUMBERS:
-        emergency_list += "\n\t* " + name + ": " + MSE_EMERGENCY_PHONE_NUMBERS[name]
+    for emergency_name in MSE_EMERGENCY_PHONE_NUMBERS:
+        emergency_list += "\n\t* " + emergency_name + ": " + MSE_EMERGENCY_PHONE_NUMBERS[emergency_name]
 
     if len(guests) == 0:
         guest_contacts = "Something went wrong here... :/"
@@ -114,7 +116,7 @@ def get_message_batch_2_host(name="<insert_name_here>", guests=[]):
               "das MSEating steht vor der Tür! Schon gespannt, mit wem du zusammen kochen wirst?" \
               "\n\n" \
               "Bitte denk daran, UNBEDINGT ein Schild an deiner Klingel anzubringen, worauf  " \
-              "„MSEating“ steht. So können dann hoffentlich alle deine Gäste pünktlich um 18 " \
+              "„MSEating“ steht. So können dann hoffentlich alle deine Gäste pünktlich um 18:30 " \
               "Uhr zu dir finden. Zudem solltest du schon jetzt entscheiden, was du morgen " \
               "für deine Gäste kochen willst und vielleicht sogar einkaufen / eine Einkaufsliste " \
               "schreiben. Googeln ist erlaubt ;)" \
@@ -170,36 +172,39 @@ def get_attendees_list(input_file="out.csv"):
     return attendees_list
 
 
-def send_mails_for_batch(input_file="out.csv", batch=1):
+def send_mails_for_batch(input_file="CSV_Tables/out.csv", batch=1):
     attendees_list = get_attendees_list(input_file=input_file)
     mails = []
     for host in attendees_list:
+
+        mail_address = host["mail_address"]
 
         if batch == 1:
             message = get_message_batch_1_host(name=host["name"],
                                                number_of_guests=host["number_of_guests"],
                                                food_requirements=host["food_requirements"])
+            mails.append({"mail_address": mail_address, "subject": "You made it!", "message": message})
         elif batch == 2:
             message = get_message_batch_2_host(name=host["name"],
                                                guests=host["guests"])
+            mails.append({"mail_address": mail_address, "subject": "Upcoming: MSEating", "message": message})
         else:
             return
 
-        mail_address = host["mail_address"]
-        mails.append({"mail_address": mail_address, "subject": "You made it!", "message": message})
         for guest in host["guests"]:
+
+            mail_address = guest["mail_address"]
 
             if batch == 1:
                 message = get_message_batch_1_guest(name=guest["name"])
+                mails.append({"mail_address": mail_address, "subject": "You made it!", "message": message})
             elif batch == 2:
                 message = get_message_batch_2_guest(name=guest["name"],
                                                     address=host["address"],
                                                     phone_number=host["phone_number"])
+                mails.append({"mail_address": mail_address, "subject": "Upcoming: MSEating", "message": message})
             else:
                 return
-
-            mail_address = guest["mail_address"]
-            mails.append({"mail_address": mail_address, "subject": "You made it!", "message": message})
 
     send_mails(mails)
 
@@ -212,26 +217,42 @@ def send_mails(mails):
         mail_count = len(mails)
 
     # Set up the SMTP server
-    s = smtplib.SMTP(host='postout.lrz.de', port=587)
+    s = smtplib.SMTP(host=SMTP_SERVER, port=SMTP_PORT)
     s.starttls()
     s.login(OUTLOOK_CREDENTIALS_USER, OUTLOOK_CREDENTIALS_PASS)
 
+    file1 = open("mails.md", "a")
+
+    file1.write("---\nSending Mails to: " + "\n\n")
+    for mail_address in [mail['mail_address'] for mail in mails]:
+        file1.write("* " + mail_address + "\n")
+    file1.write("\n---\n\n")
+
     # for i in tqdm(range(len(mails))):
     for i in tqdm(range(mail_count)):
-        print("#" * 10 + f"Sending Mail to {mails[i]['mail_address']}" + "#" * 10)
 
         # Set up message
         msg = MIMEMultipart()
         msg['From'] = OUTLOOK_FROM_EMAIL
         msg['To'] = OUTLOOK_TO_EMAIL  # mails[i]["mail_address"]
+        # msg['To'] = mails[i]["mail_address"]
         msg['Bcc'] = ""
         msg['Subject'] = mails[i]["subject"]
+        msg.add_header('reply-to', OUTLOOK_REPLY_TO_ADDRESS)
         msg.attach(MIMEText(mails[i]["message"].replace("\n", "<br/>"), 'html'))
+
+        file1.write(f"**Address**: {mails[i]['mail_address']}\n\n")
+        file1.write(f"**Subject**: {mails[i]['subject']}\n\n")
+        file1.write(f"**Content**:\n\n")
+        file1.write(mails[i]["message"].replace("<br/>", "\n"))
+        file1.write("\n\n---\n\n")
 
         # Send message
         s.send_message(msg)
 
         del msg
+
+    file1.close()
 
 
 if __name__ == "__main__":
