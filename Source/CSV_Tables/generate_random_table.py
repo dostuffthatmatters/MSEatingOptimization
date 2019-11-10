@@ -30,12 +30,12 @@ ZIP_CODES = [80995, 80997, 80999, 81247, 81249,
 
 if __name__ == "__main__":
 
-    rows = [["Region", "Host", "Allergien", "Max Personen", "Vorname", "Nachname", "Straße und Hausnummer", "Postleitzahl und Ort", "TUM Mail", "Handynummer", "Semester", "Einwilligung in Daten-Weitergabe"]]
+    rows = [["Region", "Host", "Allergies", "Max Guests", "Vorname", "Nachname", "Straße und Hausnummer", "Postleitzahl und Ort", "TUM Mail", "Handynummer", "Semester", "Einwilligung in Daten-Weitergabe"]]
 
     for i in range(400):
         host = "Ja" if random.randint(1, 5) == 1 else "Nein"
         zip_code = random.choice(ZIP_CODES)
-        row = ["Innenstadt", host, "<allergien>", "<max_personen>", "<vorname>", "<nachname>", "Straße 4", f"{zip_code} München", "<tum_mail>", "<handynummer>", "<semester>", "Ja"]
+        row = ["Innenstadt", host, "<allergies>", "<max_guests>", "<vorname>", "<nachname>", "Straße 4", f"{zip_code} München", "<mail_address>", "<phone_number>", "<semester>", "Ja"]
         rows.append(row)
 
     with open("generic_example.csv", 'wt') as f:
