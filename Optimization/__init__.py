@@ -16,7 +16,7 @@ from time import time
 
 class Optimization:
 
-    def __init__(self, input_file="Source/in.csv", output_file="Source/out.csv", optimizer=OptimizerMoritz05):
+    def __init__(self, input_file="Source/CSV_Tables/in.csv", output_file="Source/CSV_Tables/out.csv", optimizer=OptimizerMoritz05):
         self.input_file = input_file
         self.output_file = output_file
 
