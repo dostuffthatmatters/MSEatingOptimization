@@ -210,11 +210,6 @@ def send_mails_for_batch(input_file="CSV_Tables/out.csv", batch=1):
 
 
 def send_mails(mails):
-    # Just for testing
-    if len(mails) > 5:
-        mail_count = 5
-    else:
-        mail_count = len(mails)
 
     # Set up the SMTP server
     s = smtplib.SMTP(host=SMTP_SERVER, port=SMTP_PORT)
@@ -228,13 +223,13 @@ def send_mails(mails):
         file1.write("* " + mail_address + "\n")
     file1.write("\n---\n\n")
 
-    # for i in tqdm(range(len(mails))):
-    for i in tqdm(range(mail_count)):
+    # for i in tqdm(range(5)):
+    for i in tqdm(range(len(mails))):
 
         # Set up message
         msg = MIMEMultipart()
         msg['From'] = OUTLOOK_FROM_EMAIL
-        msg['To'] = OUTLOOK_TO_EMAIL  # mails[i]["mail_address"]
+        msg['To'] = OUTLOOK_TO_EMAIL
         # msg['To'] = mails[i]["mail_address"]
         msg['Bcc'] = ""
         msg['Subject'] = mails[i]["subject"]
@@ -248,7 +243,7 @@ def send_mails(mails):
         file1.write("\n\n---\n\n")
 
         # Send message
-        s.send_message(msg)
+        # s.send_message(msg)
 
         del msg
 
@@ -256,4 +251,4 @@ def send_mails(mails):
 
 
 if __name__ == "__main__":
-    send_mails_for_batch(batch=1)
+    send_mails_for_batch(batch=2)

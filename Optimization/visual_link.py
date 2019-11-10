@@ -227,6 +227,8 @@ def export_image():
     CustomLogger.info(f"#5 Generating Images ...")
     time1 = time()
 
+    """
+
     # I downloaded a static image and evaluated the boundaries myself
     source = "Source/Images/munich.png"
     destination = "Source/Images/munich_out.png"
@@ -300,6 +302,24 @@ def export_image():
     min_lng = 11.0301
     max_lng = 12.1761
     size_multiplier = 0.8
+
+    draw_image(source=source,
+               destination=destination,
+               min_lat=min_lat,
+               max_lat=max_lat,
+               min_lng=min_lng,
+               max_lng=max_lng,
+               size_multiplier=size_multiplier)
+    
+    """
+
+    source = "Source/Images/munich_panorama_huge.png"
+    destination = "Source/Images/munich_panorama_out.png"
+    min_lat = 47.790745
+    max_lat = 48.464488
+    min_lng = 10.919452
+    max_lng = 12.201383
+    size_multiplier = 1.5
 
     draw_image(source=source,
                destination=destination,
