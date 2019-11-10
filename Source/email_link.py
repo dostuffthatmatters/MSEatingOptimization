@@ -5,7 +5,7 @@ import smtplib
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from secrets import OUTLOOK_CREDENTIALS_USER, OUTLOOK_CREDENTIALS_PASS, OUTLOOK_FROM_EMAIL, OUTLOOK_TO_EMAIL, MSE_EMERGENCY_PHONE_NUMBER
+from secrets import OUTLOOK_CREDENTIALS_USER, OUTLOOK_CREDENTIALS_PASS, OUTLOOK_FROM_EMAIL, OUTLOOK_TO_EMAIL, MSE_EMERGENCY_PHONE_NUMBERS
 
 
 def get_message_batch_1_guest(name="<insert_name_here>"):
@@ -27,6 +27,11 @@ def get_message_batch_1_guest(name="<insert_name_here>"):
 
 def get_message_batch_2_guest(name="<insert_name_here>", address="", phone_number=""):
     name = name.split(" ")[0]
+
+    emergency_list = ""
+    for name in MSE_EMERGENCY_PHONE_NUMBERS:
+        emergency_list += "\n\t* " + name + ": " + MSE_EMERGENCY_PHONE_NUMBERS[name]
+
     message = f"Servus {name}," \
               "\n\n" \
               "morgen ist es endlich soweit. Da du bislang immer noch keine Ahnung hast, " \
@@ -40,8 +45,9 @@ def get_message_batch_2_guest(name="<insert_name_here>", address="", phone_numbe
               "\n\n" \
               "Dein MSEating Team" \
               "\n\n" \
-              f"PS: Falls du Probleme haben solltest, kannst du uns gerne anrufen: {MSE_EMERGENCY_PHONE_NUMBER}" \
-              "\n"\
+              "PS: Falls du Probleme haben solltest, kannst du uns gerne anrufen:" \
+              f"{emergency_list}" \
+              "\n\n"\
               "(und denk daran: es gibt auch Googlemaps  & die  MVG-App ;P)"
     return message
 
@@ -57,9 +63,9 @@ def get_message_batch_1_host(name="<insert_name_here>", number_of_guests=0, food
     if len(food_requirements) == 0:
         food_requirements_string = "Deine Gäste haben KEINE Essensbesonderheiten angegeben."
     else:
-        food_requirements_string = "Deine Gäste haben folgende Essensbesonderheiten:\n"
+        food_requirements_string = "Deine Gäste haben folgende Essensbesonderheiten:"
         for food_requirement in food_requirements:
-            food_requirements_string += f"\t* {food_requirement}\n"
+            food_requirements_string += f"\n\t* {food_requirement}"
 
     message = f"Servus {name} - Du hast gewonnen!" \
               "\n\n" \
@@ -71,14 +77,16 @@ def get_message_batch_1_host(name="<insert_name_here>", number_of_guests=0, food
               f"Du kannst mit {number_of_guests} Personen (inkl. dir) rechnen. Damit du auf " \
               f"keinen Kosten sitzenbleibst, kannst du den Teilnehmerbeitrag von {number_of_guests * 7}€ " \
               f"({number_of_guests} x 7€) deiner Abendgenossen (und dir) ab sofort im " \
-              f"Fachschaftsraum abholen." \
+              "Fachschaftsraum abholen." \
               "\n\n" \
-              "Was du dann letztendlich machst - also was du kochen willst  - kannst " \
-              "du ganz allein entscheiden. Dabei kannst du dich entweder an den Rezept" \
-              "vorschlägen unten orientieren, oder du kochst einfach dein Lieblingsgericht!" \
+              "Was du dann letztendlich machst - also was du kochen willst - kannst " \
+              "du ganz allein entscheiden. Dabei kann <a href='https://www.google.de'>Google</a>," \
+              "<a href='https://www.chefkoch.de/'>Chefkoch</a> oder " \
+              "<a href='https://www.youtube.com/user/donalskehan'>Youtube</a> eine große Hilfe sein." \
+              "Oder du kochst einfach dein Lieblingsgericht!" \
               "\n\n" \
               f"{food_requirements_string}" \
-              "\n" \
+              "\n\n" \
               "Bitte hänge am Tag der Veranstaltung einen Zettel an deine Klingel mit der " \
               "Aufschrift „MSEating“, da deine Gäste deinen Namen ja (noch) nicht kennen werden! " \
               "Wir melden uns dann einen Tag vor dem Abend nochmal." \
@@ -90,7 +98,9 @@ def get_message_batch_1_host(name="<insert_name_here>", number_of_guests=0, food
 def get_message_batch_2_host(name="<insert_name_here>", guests=[]):
     name = name.split(" ")[0]
 
-    # Rezeptvorschläge anhängen???
+    emergency_list = ""
+    for name in MSE_EMERGENCY_PHONE_NUMBERS:
+        emergency_list += "\n\t* " + name + ": " + MSE_EMERGENCY_PHONE_NUMBERS[name]
 
     if len(guests) == 0:
         guest_contacts = "Something went wrong here... :/"
@@ -107,7 +117,7 @@ def get_message_batch_2_host(name="<insert_name_here>", guests=[]):
               "„MSEating“ steht. So können dann hoffentlich alle deine Gäste pünktlich um 18 " \
               "Uhr zu dir finden. Zudem solltest du schon jetzt entscheiden, was du morgen " \
               "für deine Gäste kochen willst und vielleicht sogar einkaufen / eine Einkaufsliste " \
-              "schreiben. Ein paar mögliche Rezeptvorschläge siehst du unten angehängt." \
+              "schreiben. Googeln ist erlaubt ;)" \
               "\n\n" \
               "Hier die Kontaktdaten deiner Gäste, für Notfälle (Bitte behalte die Informationen " \
               "für dich, damit die Spannung nicht verloren geht!) :\n" \
@@ -115,9 +125,10 @@ def get_message_batch_2_host(name="<insert_name_here>", guests=[]):
               f"\n" \
               "Dein MSEating-Team" \
               "\n\n" \
-              f"PS: Falls du Probleme haben solltest, kannst du uns gerne anrufen: {MSE_EMERGENCY_PHONE_NUMBER}" \
-              "\n" \
-              "\nWenn du das Geld noch nicht abgeholt hast, hole dies bitte so schnell wie möglich " \
+              f"PS: Falls du Probleme haben solltest, kannst du uns gerne anrufen:" \
+              f"{emergency_list}" \
+              "\n\n"\
+              "Wenn du das Geld noch nicht abgeholt hast, hole dies bitte so schnell wie möglich " \
               "nach! Oder willst du dir etwa die 7€ pro Teilnehmer entgehen lassen? ;) " \
 
     return message
@@ -135,8 +146,9 @@ def get_attendees_list(input_file="out.csv"):
             if name_and_type[-4:] == "ost)":
                 # This row belongs to a host
                 host_index += 1
-                address = row[1].replace("\"", "").replace("\u00df", "ss") + "," + row[2].replace("\"", "").replace(
-                    "\u00fc", "ue")
+                address = row[1].replace("\u00df", "ss") + "," + row[2].replace("\u00fc", "ue")
+                address = address.replace("\"", "")
+
                 attendees_list.append({"name": name_and_type[:-7],
                                        "number_of_guests": 0,
                                        "food_requirements": [],
