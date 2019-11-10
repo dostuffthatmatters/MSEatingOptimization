@@ -24,7 +24,13 @@ def load_models(input_file):
                 continue
 
             try:
-                max_guests = int(row[3])
+                number_string = ""
+                for character in str(row[3]):
+                    if 48 <= ord(character) <= 57:
+                        number_string += character
+                    else:
+                        break
+                max_guests = int(number_string)
                 max_guests = 4 if max_guests < 4 else max_guests  # Has to be at least 4
             except ValueError:
                 max_guests = 4

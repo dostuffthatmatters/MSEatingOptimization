@@ -89,7 +89,7 @@ def draw_image(source="Source/Images/munich.png",
         for guest in host.guests:
             x_guest = round(width * (guest.lng - min_lng) / (max_lng - min_lng))
             y_guest = height - round(height * (guest.lat - min_lat) / (max_lat - min_lat))
-            distance_category_index = round((guest.distance_to_hub / 1000.0) - 0.499999)
+            distance_category_index = round((guest.distance_to_hub / 2000.0) - 0.499999)
             distance_category_index = 5 if distance_category_index > 5 else distance_category_index
             draw.line((x_host, y_host, x_guest, y_guest), fill=line_colors[distance_category_index], width=line_width)
 
@@ -284,6 +284,22 @@ def export_image():
     min_lng = 11.240417
     max_lng = 11.959839
     size_multiplier = 1
+
+    draw_image(source=source,
+               destination=destination,
+               min_lat=min_lat,
+               max_lat=max_lat,
+               min_lng=min_lng,
+               max_lng=max_lng,
+               size_multiplier=size_multiplier)
+
+    source = "Source/Images/big_map.png"
+    destination = "Source/Images/big_map_out.png"
+    min_lat = 47.7364
+    max_lat = 48.5952
+    min_lng = 11.0301
+    max_lng = 12.1761
+    size_multiplier = 0.8
 
     draw_image(source=source,
                destination=destination,

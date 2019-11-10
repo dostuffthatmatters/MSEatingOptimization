@@ -42,26 +42,54 @@ class HostHub:
 
     def export_hub(self):
 
-        # Looping through hosts in a circle increasing each host
-        # that is not full yet by one guest
-        guest_index = 0
-
         CustomLogger.debug(f"Exporting HostHub at {self.zip_string}: {len(self.guests_taken)} guests and {len(self.hosts)} hosts")
 
         CustomLogger.debug(f"Iterating through hosts:", data_dict={
             "Hosts": [str(x) for x in self.hosts],
         })
 
-        for host in self.hosts:
-            guests_to_append = self.guests_taken[guest_index:guest_index+host.max_guests]
+        guest_index = 0
+        host_index = 0
 
-            CustomLogger.debug("Assigning guests to hosts:", data_dict={
-                "Host": str(host),
-                "Number of guests to append": len(guests_to_append)
-            })
+        if len(self.guests_taken) < 4 * len(self.hosts):
+            # Less than 4 guests per host at this hub
+            while len(self.guests_taken) >= guest_index:
+                guests_to_append = self.guests_taken[guest_index:guest_index + 1]
+                self.hosts[host_index].append_guests(guests_to_append)
 
-            host.append_guests(guests_to_append)
-            guest_index += host.max_guests
+                guest_index += 1
+                host_index = (host_index + 1) % len(self.hosts)
+            return
+        else:
+            for host in self.hosts:
+                guests_to_append = self.guests_taken[guest_index:guest_index+4]
+
+                host.append_guests(guests_to_append)
+                guest_index += 4
+
+        print("\n" + "-"*40 + "\n")
+
+        print(f"Guests: {len(self.guests_taken)}, Hosts: {len(self.hosts)}")
+
+        print(f"Guest index after intial distribution: {guest_index}")
+
+        while len(self.guests_taken) > (guest_index):
+
+            print(f"\nhost index {host_index}, "
+                  f"max_guests {self.hosts[host_index].max_guests}, "
+                  f"assigned guests {len(self.hosts[host_index].guests)}")
+
+            if self.hosts[host_index].max_guests <= len(self.hosts[host_index].guests):
+                host_index = (host_index + 1) % len(self.hosts)
+                continue
+
+            guests_to_append = self.guests_taken[guest_index:guest_index + 1]
+            self.hosts[host_index].append_guests(guests_to_append)
+
+            guest_index += 1
+            host_index = (host_index + 1) % len(self.hosts)
+
+        print(f"Guest index after full distribution: {guest_index}")
 
     def __repr__(self):
         return f"HostHub(Zip String: {self.zip_string}, Hosts: {len(self.hosts)}, Guests: {len(self.guests_taken)}, MaxGuests: {self.max_guests_left})"
@@ -271,7 +299,8 @@ class OptimizerMoritz06(Optimizer):
 
             switched_guests = []
 
-            for unlucky_guest in guests_with_long_distances[::]:
+            # for unlucky_guest in guests_with_long_distances[::]:
+            for unlucky_guest in matched_guests[::-1]:
                 # Determine the partner where the switch is best
                 saved_distance_when_switched = 0
                 switch_partner = None

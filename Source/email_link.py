@@ -235,4 +235,4 @@ def send_mails(mails):
 
 
 if __name__ == "__main__":
-    send_mails_for_batch(batch=2)
+    send_mails_for_batch(batch=1)
