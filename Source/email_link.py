@@ -211,8 +211,8 @@ def send_mails_for_batch(input_file="CSV_Tables/out.csv", batch=1):
 
 def send_mails(mails):
     # Just for testing
-    if len(mails) > 10:
-        mail_count = 10
+    if len(mails) > 5:
+        mail_count = 5
     else:
         mail_count = len(mails)
 
