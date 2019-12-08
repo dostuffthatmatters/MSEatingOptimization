@@ -1,4 +1,23 @@
-## MSEating Optimization
+# MSEating Optimization
+
+Input: CSV-table from an attendee signup. Every row is representing and attendee (name, host (yes,no), max guests (if host), adress, email, etc.)
+
+Output: CSV-table containing all matched groups. Additionaly a visualisation of the optimization result itself - Example:
+
+![](Optimization/Optimizer/56_comparison/squared_error.png)
+
+*Blue rings/dots are hosts (with their respective number of guests in pink numbers), green rings/dots are matched guests, red rings/dots are unmatched guests (only possible if there are simply not enough hosts).*
+
+See a description of my optimization algorithm here: 
+https://github.com/dostuffthatmatters/MSEatingOptimization/tree/master/Optimization/Optimizer
+
+<br/>
+
+**Annotation:** This project is actually not intended to be for public use because it is a very general problem but a really specific usecase. That's why the actual use of it as a tool is not really documented.
+
+<br/>
+
+## General Information
 
 This module is using **Python 3.7** with the dependecies as listed in `requirements.txt`. You can install all dependencies by running `pip install -r requirements.txt`.
 
@@ -26,17 +45,13 @@ OUTLOOK_FROM_EMAIL = "..."
 
 Google Developer Console: https://developers.google.com/maps/documentation/geocoding/get-api-key
 
-
-
-
+<br/>
 
 ## Explanation of the file structure
 
-
-
 The main optimization is stored inside the directory **`Optimization`** : See this directory for details.
 
-
+<br/>
 
 Inside the directory **`Database`** I handle all database-related logic:
 
@@ -44,7 +59,7 @@ Inside the directory **`Database`** I handle all database-related logic:
 * I also store all possible distances between stored geographical coordinates inside that database so that I don’t have to calculate this at every execution
 * I only use Getter- and Setter-functions to interact with the database from outside that directory
 
-
+<br/>
 
 Inside the directory **`Helpers`** I handle all operations that are not really specific to this optimization problem:
 
@@ -52,7 +67,7 @@ Inside the directory **`Helpers`** I handle all operations that are not really s
 * I also wrote a class `CustomPrinting` to `print` in colors and bold/underlined with ease
 * In my `CustomMath` class I do mathematical operation - e.g. evaluating the [Haversine Formula](https://en.wikipedia.org/wiki/Haversine_formula) to determine the distance between two coordinates
 
-
+<br/>
 
 Inside the directory **`Source`** I store all files used as input parameters/created as output files:
 
