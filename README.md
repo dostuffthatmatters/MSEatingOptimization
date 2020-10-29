@@ -1,5 +1,18 @@
 # MSEating Optimization
 
+## Background
+
+An optimization for the MSEating event. People can sign up for a dinner 
+with other people from our university department.
+
+They specify whether they want to host a dinner or take part in one. This 
+optimization matches all guests with dinner hosts so that the overall squared
+travel distance is minimized.
+
+<br/>
+
+## Task
+
 Input: CSV-table from an attendee signup. Every row is representing and attendee (name, host (yes,no), max guests (if host), adress, email, etc.)
 
 Output: CSV-table containing all matched groups. Additionaly a visualisation of the optimization result itself - Example:
